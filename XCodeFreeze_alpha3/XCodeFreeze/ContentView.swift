@@ -12,14 +12,13 @@ struct ContentView: View {
     @StateObject private var viewModel = MCPViewModel()
     @State private var inputText = ""
     @FocusState private var isInputFocused: Bool
-    @State private var scrollToBottom = true
     @State var configFilePath = UserDefaults.standard.string(forKey: "savedConfigPath") ?? ""
     @State private var showConfigAlert = false
     
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            Text("MCP Client-Server Demo")
+            Text("XCodeFreeze Demo")
                 .font(.largeTitle)
                 .padding()
             
@@ -98,8 +97,24 @@ struct ContentView: View {
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(8)
                 .onChange(of: viewModel.messages.count) { oldValue, newValue in
-                    // Scroll to bottom when messages are added
-                    if scrollToBottom {
+                    // Always scroll to bottom when messages are added
+                    DispatchQueue.main.async {
+                        withAnimation {
+                            scrollView.scrollTo("bottom", anchor: .bottom)
+                        }
+                    }
+                }
+                .onAppear {
+                    // Scroll to bottom when the view appears
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            scrollView.scrollTo("bottom", anchor: .bottom)
+                        }
+                    }
+                }
+                // Add explicit scroll to bottom after each message addition
+                .onChange(of: viewModel.messages.last?.id) { _, _ in
+                    DispatchQueue.main.async {
                         withAnimation {
                             scrollView.scrollTo("bottom", anchor: .bottom)
                         }

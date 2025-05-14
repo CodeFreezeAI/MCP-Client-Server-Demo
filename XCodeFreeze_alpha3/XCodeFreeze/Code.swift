@@ -458,7 +458,7 @@ class MCPViewModel: ObservableObject {
     // MARK: - Server Connection
     
     func startClientServer(configPath: String? = nil) async {
-        await addMessage(content: "Starting MCP Client-Server...", isFromServer: true)
+        await addMessage(content: "Starting XCodeFreeze Client Demo...", isFromServer: true)
         
         if let customPath = configPath, !customPath.isEmpty {
             await addMessage(content: "Using custom config file: \(customPath)", isFromServer: true)
@@ -1187,7 +1187,13 @@ class MCPViewModel: ObservableObject {
             timestamp: Date(),
             isFromServer: isFromServer
         )
+        
+        // Add the message to the messages array
         messages.append(message)
+        
+        // Force UI update by reassigning to trigger change notifications
+        let currentMessages = messages
+        messages = currentMessages
     }
     
     @MainActor
