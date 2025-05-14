@@ -565,7 +565,7 @@ class MCPViewModel: ObservableObject {
                         print("Attempting to connect client to \(MCP_SERVER_NAME) server")
                         // Connect to server
                         do {
-                            try await client!.connect(transport: transport)
+                            try await client?.connect(transport: transport)
                             print("Client successfully connected to \(MCP_SERVER_NAME) server")
                             clientCreated = true
                         } catch {
@@ -573,8 +573,19 @@ class MCPViewModel: ObservableObject {
                             await updateStatus("Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
                             await addMessage(content: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)", isFromServer: true)
                             
-                            // Clean up resources
-                            stopClientServer()
+                            // Clean up resources and restore original stdin/stdout
+                            if let originalStdin = self.originalStdin {
+                                dup2(originalStdin.fileDescriptor, FileHandle.standardInput.fileDescriptor)
+                            }
+                            if let originalStdout = self.originalStdout {
+                                dup2(originalStdout.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
+                            }
+                            
+                            // Clean up server process
+                            serverProcess?.terminate()
+                            serverProcess = nil
+                            self.client = nil
+                            
                             return
                         }
                     } else {
@@ -606,7 +617,13 @@ class MCPViewModel: ObservableObject {
             await addMessage(content: "[→] JSON-RPC: initialize(clientName: \"\(MCP_CLIENT_NAME)\", version: \"\(MCP_CLIENT_DEFAULT_VERSION)\")", isFromServer: true)
             
             // Initialize connection
-            let result = try await client!.initialize()
+            guard let client = self.client else {
+                await updateStatus("Error: Client was not created properly")
+                await addMessage(content: "Error: Failed to create client object", isFromServer: true)
+                return
+            }
+            
+            let result = try await client.initialize()
             
             // Capture server version for future use
             let serverVersion = result.serverInfo.version
@@ -618,8 +635,14 @@ class MCPViewModel: ObservableObject {
             // Update the MCP_SERVER_NAME based on the actual server name from the response
             // This ensures we use the actual server name rather than the configured one
             if !serverName.isEmpty {
-                MCP_SERVER_NAME = serverName
-                print("Setting MCP_SERVER_NAME to: \(serverName) (from server response)")
+                // Special case for NPX filesystem server
+                if serverName.lowercased() == "filesystem" && MCP_SERVER_NAME.lowercased() != "filesystem" {
+                    await addMessage(content: "Connected to NPX Filesystem server. Note: Using configured name '\(MCP_SERVER_NAME)' for server commands.", isFromServer: true)
+                    // Don't update the server name in this case to maintain compatibility
+                } else {
+                    MCP_SERVER_NAME = serverName
+                    print("Setting MCP_SERVER_NAME to: \(serverName) (from server response)")
+                }
             }
             
             await updateStatus("Connected to: \(serverName) v\(serverVersion)")
@@ -629,7 +652,7 @@ class MCPViewModel: ObservableObject {
             await addMessage(content: "[→] JSON-RPC: listTools()", isFromServer: true)
             
             // List available tools
-            let toolsResponse = try await client!.listTools()
+            let toolsResponse = try await client.listTools()
             
             // Format tools for debug display
             var toolsJson = "[\n"
