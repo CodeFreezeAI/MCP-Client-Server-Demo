@@ -228,11 +228,11 @@ struct MCPConfig: Codable {
         if let savedPath = UserDefaults.standard.string(forKey: "savedConfigPath"), !savedPath.isEmpty {
             print("Checking saved config path from UserDefaults: \(savedPath)")
             
-            let fileManager = FileManager.default
+        let fileManager = FileManager.default
             if fileManager.fileExists(atPath: savedPath) {
                 let data = try Data(contentsOf: URL(fileURLWithPath: savedPath))
                 print("Config file loaded from saved path, size: \(data.count) bytes")
-                
+            
                 // Validate JSON structure
                 do {
                     let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
@@ -258,23 +258,23 @@ struct MCPConfig: Codable {
                         throw validationError
                     } else {
                         throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format: \(validationError.localizedDescription)"])
-                    }
+        }
                 }
                 
                 // If validation passes, decode normally
-                let decoder = JSONDecoder()
-                let config = try decoder.decode(MCPConfig.self, from: data)
-                
+        let decoder = JSONDecoder()
+        let config = try decoder.decode(MCPConfig.self, from: data)
+        
                 // Set initial MCP_SERVER_NAME from config
-                if !config.mcpServers.isEmpty {
-                    if let firstServerName = config.mcpServers.keys.first {
-                        MCP_SERVER_NAME = firstServerName
-                        print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
-                    }
+        if !config.mcpServers.isEmpty {
+            if let firstServerName = config.mcpServers.keys.first {
+                MCP_SERVER_NAME = firstServerName
+                print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
+            }
                 }
                 
                 return config
-            } else {
+        } else {
                 print("Saved config file does not exist at path: \(savedPath)")
                 throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "Saved config file no longer exists: \(savedPath)"])
             }
@@ -358,14 +358,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // Try to use the path from UserDefaults
             if let savedPath = UserDefaults.standard.string(forKey: "savedConfigPath"), !savedPath.isEmpty {
                 print("Checking for MCP config at saved path: \(savedPath)")
-                
-                let fileManager = FileManager.default
+            
+            let fileManager = FileManager.default
                 if fileManager.fileExists(atPath: savedPath) {
                     let data = try Data(contentsOf: URL(fileURLWithPath: savedPath))
-                    if let jsonString = String(data: data, encoding: .utf8) {
-                        print("=== START MCP CONFIG FILE CONTENTS ===")
-                        print(jsonString)
-                        print("=== END MCP CONFIG FILE CONTENTS ===")
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("=== START MCP CONFIG FILE CONTENTS ===")
+                    print(jsonString)
+                    print("=== END MCP CONFIG FILE CONTENTS ===")
                     }
                 } else {
                     print("Saved config file does not exist at path: \(savedPath)")
@@ -645,9 +645,6 @@ class MCPViewModel: ObservableObject {
                         let schemaString = objectValue.description
                         toolsJson += "    ,\"inputSchema\": \(schemaString)\n"
                     }
-                    
-                    // Attempt to extract parameter information from the schema
-                    await extractParametersFromSchema(toolName: tool.name, schema: inputSchema)
                 }
                 
                 toolsJson += "  },\n"
@@ -668,6 +665,13 @@ class MCPViewModel: ObservableObject {
             }
             
             await addMessage(content: "Available tools: \(toolsResponse.tools.map { $0.name }.joined(separator: ", "))", isFromServer: true)
+            
+            // Now process the input schemas after showing the response
+            for tool in toolsResponse.tools {
+                if let inputSchema = tool.inputSchema {
+                    await extractParametersFromSchema(toolName: tool.name, schema: inputSchema)
+                }
+            }
             
             // Restore original stdin/stdout for user interaction
             if let originalStdin = self.originalStdin {
@@ -939,14 +943,14 @@ class MCPViewModel: ObservableObject {
                 if let schema = ToolRegistry.shared.getToolSchema(for: MCP_SERVER_NAME), !schema.isEmpty {
                     // Use the first parameter name from the server's schema
                     if let firstParamName = schema.keys.first {
-                        let description = actionDescriptions[action]
-                        let paramInfo = ToolParameterInfo(
+                let description = actionDescriptions[action]
+                let paramInfo = ToolParameterInfo(
                             name: firstParamName, 
-                            isRequired: true, 
-                            type: "string",
-                            description: description
-                        )
-                        ToolRegistry.shared.registerParameterInfo(for: action, parameters: [paramInfo])
+                    isRequired: true, 
+                    type: "string",
+                    description: description
+                )
+                ToolRegistry.shared.registerParameterInfo(for: action, parameters: [paramInfo])
                     }
                 } else {
                     // If no schema is found, register with a generic parameter name
@@ -1118,14 +1122,14 @@ class MCPViewModel: ObservableObject {
                 
                 // For tools without explicit schema, register with default parameter
                 let paramName = "text" // Default parameter name
-                let description = toolDescriptions[tool]
-                let paramInfo = ToolParameterInfo(
+                    let description = toolDescriptions[tool]
+                    let paramInfo = ToolParameterInfo(
                     name: paramName, 
-                    isRequired: true, 
-                    type: "string",
-                    description: description
-                )
-                ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
+                        isRequired: true, 
+                        type: "string",
+                        description: description
+                    )
+                    ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
             }
             
             // Create local copies to avoid Swift 6 concurrency issues
@@ -1221,67 +1225,123 @@ class MCPViewModel: ObservableObject {
         // Debug - output raw schema for inspection
         print("Raw schema for \(toolName): \(schema)")
         
-        // Try different schema formats to extract parameter info
-        if let objectValue = schema.objectValue {
-            // Extract required parameters array
-            if let requiredArray = objectValue["required"]?.arrayValue {
-                for item in requiredArray {
+        // First, try to extract array format schema common in xcf tools
+        // Format: ["type": object, "properties": ["action": [...]], "required": [action]]
+        if let arrayValue = schema.arrayValue {
+            print("Processing array-format schema for \(toolName)")
+            
+            // Look for array with type, properties, and required fields
+            var propertiesIndex: Int? = nil
+            var requiredIndex: Int? = nil
+            
+            // First pass: find the indices of properties and required elements
+            for i in 0..<arrayValue.count {
+                if let key = arrayValue[i].stringValue {
+                    if key == "properties" && i+1 < arrayValue.count {
+                        propertiesIndex = i+1
+                    } else if key == "required" && i+1 < arrayValue.count {
+                        requiredIndex = i+1
+                    }
+                }
+            }
+            
+            // Extract properties
+            if let propIdx = propertiesIndex, let propObj = arrayValue[propIdx].objectValue {
+                for (paramName, paramValue) in propObj {
+                    if let paramObj = paramValue.objectValue {
+                        // Get parameter type
+                        var paramType = "string" // Default
+                        if let typeVal = paramObj["type"]?.stringValue {
+                            paramType = typeVal
+                        }
+                        
+                        // Get parameter description
+                        if let descVal = paramObj["description"]?.stringValue {
+                            paramDescriptions[paramName] = descVal
+                        }
+                        
+                        parameterMap[paramName] = paramType
+                        print("  Found parameter in array schema: \(paramName), Type: \(paramType)")
+                        foundParameters = true
+                    }
+                }
+            }
+            
+            // Extract required parameters
+            if let reqIdx = requiredIndex, let reqArray = arrayValue[reqIdx].arrayValue {
+                for item in reqArray {
                     if let paramName = item.stringValue {
                         requiredParams.append(paramName)
+                        print("  Required parameter: \(paramName)")
                     }
                 }
             }
             
-            // Format 1: Direct properties at the top level
-            for (key, value) in objectValue {
-                if value.objectValue?["type"] != nil {
-                    // This looks like a parameter definition
-                    if let paramType = value.objectValue?["type"]?.stringValue {
-                        parameterMap[key] = paramType
-                        
-                        // Try to extract description and examples too
-                        if let description = value.objectValue?["description"]?.stringValue {
-                            paramDescriptions[key] = description
+            // Handle the case where parameters are specified as key-value pairs
+            if !foundParameters {
+                // Try to interpret array elements as key-value pairs
+                for i in 0..<(arrayValue.count-1) {
+                    if let key = arrayValue[i].stringValue {
+                        if key == "properties" && arrayValue[i+1].objectValue != nil {
+                            let properties = arrayValue[i+1].objectValue!
+                            for (paramName, paramValue) in properties {
+                                if let paramObj = paramValue.objectValue, 
+                                   let paramType = paramObj["type"]?.stringValue {
+                                    parameterMap[paramName] = paramType
+                                    
+                                    // Try to extract description
+                                    if let description = paramObj["description"]?.stringValue {
+                                        paramDescriptions[paramName] = description
+                                    }
+                                    
+                                    print("  Found parameter: \(paramName), Type: \(paramType)")
+                                    foundParameters = true
+                                }
+                            }
+                        } else if key == "required" && arrayValue[i+1].arrayValue != nil {
+                            let required = arrayValue[i+1].arrayValue!
+                            for item in required {
+                                if let paramName = item.stringValue {
+                                    requiredParams.append(paramName)
+                                    print("  Required parameter: \(paramName)")
+                                }
+                            }
                         }
-                        
-                        if let example = value.objectValue?["example"]?.stringValue ?? 
-                                          value.objectValue?["default"]?.stringValue {
-                            paramExamples[key] = example
-                        }
-                        
-                        print("  Found direct parameter: \(key), Type: \(paramType)")
-                        foundParameters = true
                     }
                 }
             }
-            
-            // Format 2: "properties" object that defines parameters
-            if let properties = objectValue["properties"]?.objectValue {
-                for (paramName, paramValue) in properties {
-                    // Store parameter name and type if available
-                    if let paramType = paramValue.objectValue?["type"]?.stringValue {
-                        parameterMap[paramName] = paramType
-                        
-                        // Try to extract description and examples too
-                        if let description = paramValue.objectValue?["description"]?.stringValue {
-                            paramDescriptions[paramName] = description
+        }
+        
+        // If array format didn't yield results, try object format
+        if !foundParameters {
+            if let objectValue = schema.objectValue {
+                // Format 1: Direct properties at the top level
+                for (key, value) in objectValue {
+                    if value.objectValue?["type"] != nil {
+                        // This looks like a parameter definition
+                        if let paramType = value.objectValue?["type"]?.stringValue {
+                            parameterMap[key] = paramType
+                            
+                            // Try to extract description and examples too
+                            if let description = value.objectValue?["description"]?.stringValue {
+                                paramDescriptions[key] = description
+                            }
+                            
+                            if let example = value.objectValue?["example"]?.stringValue ?? 
+                                              value.objectValue?["default"]?.stringValue {
+                                paramExamples[key] = example
+                            }
+                            
+                            print("  Found direct parameter: \(key), Type: \(paramType)")
+                            foundParameters = true
                         }
-                        
-                        if let example = paramValue.objectValue?["example"]?.stringValue ?? 
-                                         paramValue.objectValue?["default"]?.stringValue {
-                            paramExamples[paramName] = example
-                        }
-                        
-                        print("  Found parameter in properties: \(paramName), Type: \(paramType)")
-                        foundParameters = true
                     }
                 }
-            }
-            
-            // Format 3: "params" or "parameters" object
-            for key in ["params", "parameters"] {
-                if let params = objectValue[key]?.objectValue {
-                    for (paramName, paramValue) in params {
+                
+                // Format 2: "properties" object that defines parameters
+                if let properties = objectValue["properties"]?.objectValue {
+                    for (paramName, paramValue) in properties {
+                        // Store parameter name and type if available
                         if let paramType = paramValue.objectValue?["type"]?.stringValue {
                             parameterMap[paramName] = paramType
                             
@@ -1295,165 +1355,73 @@ class MCPViewModel: ObservableObject {
                                 paramExamples[paramName] = example
                             }
                             
-                            print("  Found parameter in \(key): \(paramName), Type: \(paramType)")
+                            print("  Found parameter in properties: \(paramName), Type: \(paramType)")
                             foundParameters = true
                         }
                     }
                 }
-            }
-            
-            // Format 4: Extract from items for array types
-            if let items = objectValue["items"]?.objectValue, 
-               objectValue["type"]?.stringValue == "array" {
-                if let itemsProperties = items["properties"]?.objectValue {
-                    for (propName, propValue) in itemsProperties {
-                        if let propType = propValue.objectValue?["type"]?.stringValue {
-                            let paramName = "items.\(propName)"
-                            parameterMap[paramName] = "array<\(propType)>"
-                            
-                            if let description = propValue.objectValue?["description"]?.stringValue {
-                                paramDescriptions[paramName] = description
-                            }
-                            
-                            print("  Found array item property: \(propName), Type: array<\(propType)>")
-                            foundParameters = true
-                        }
-                    }
-                }
-            }
-            
-            // Format 5: Handle oneOf, anyOf, allOf schema constructs
-            for schemaType in ["oneOf", "anyOf", "allOf"] {
-                if let options = objectValue[schemaType]?.arrayValue {
-                    for (index, option) in options.enumerated() {
-                        if let optProps = option.objectValue?["properties"]?.objectValue {
-                            for (propName, propValue) in optProps {
-                                if let propType = propValue.objectValue?["type"]?.stringValue {
-                                    let paramName = "\(schemaType)[\(index)].\(propName)"
-                                    parameterMap[paramName] = propType
-                                    
-                                    if let description = propValue.objectValue?["description"]?.stringValue {
-                                        paramDescriptions[paramName] = description
-                                    }
-                                    
-                                    print("  Found \(schemaType) option property: \(propName), Type: \(propType)")
-                                    foundParameters = true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else if let arrayValue = schema.arrayValue {
-            // Handle schema that's provided as an array of key-value pairs
-            // Special case handling for formatted array schema like ["required": ["action"], "properties": ["action": ["type": "string"]]]
-            if !arrayValue.isEmpty {
-                // Try to interpret array elements
-                for (index, item) in arrayValue.enumerated() {
-                    if let itemArray = item.arrayValue, itemArray.count >= 2 {
-                        if let key = itemArray[0].stringValue, key == "required" {
-                            // This is a required parameter array
-                            if let requiredList = itemArray[1].arrayValue {
-                                for reqItem in requiredList {
-                                    if let paramName = reqItem.stringValue {
-                                        requiredParams.append(paramName)
-                                        print("  Found required parameter: \(paramName)")
-                                    }
-                                }
-                            } else if let paramName = itemArray[1].stringValue {
-                                requiredParams.append(paramName)
-                                print("  Found required parameter: \(paramName)")
-                            }
-                        } else if let key = itemArray[0].stringValue, key == "properties" {
-                            // This is a properties object
-                            if let propsArray = itemArray[1].arrayValue {
-                                for propItem in propsArray {
-                                    if let propArray = propItem.arrayValue, propArray.count >= 2 {
-                                        if let paramName = propArray[0].stringValue {
-                                            // Look for type definition
-                                            if let paramProps = propArray[1].arrayValue {
-                                                for propDef in paramProps {
-                                                    if let propDefArray = propDef.arrayValue, propDefArray.count >= 2,
-                                                        let propKey = propDefArray[0].stringValue, propKey == "type",
-                                                        let propType = propDefArray[1].stringValue {
-                                                        
-                                                        parameterMap[paramName] = propType
-                                                        print("  Found parameter in array properties: \(paramName), Type: \(propType)")
-                                                        foundParameters = true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else if let stringValue = item.stringValue {
-                        // Sometimes input schema is provided as serialized JSON strings
-                        if stringValue == "required" && index + 1 < arrayValue.count {
-                            // Next item should be an array of required params
-                            if let reqArray = arrayValue[index + 1].arrayValue {
-                                for reqItem in reqArray {
-                                    if let paramName = reqItem.stringValue {
-                                        requiredParams.append(paramName)
-                                        print("  Found required parameter from string format: \(paramName)")
-                                    }
-                                }
-                            }
-                        } else if stringValue == "properties" && index + 1 < arrayValue.count {
-                            // Next item should be properties
-                            if let propsArray = arrayValue[index + 1].arrayValue {
-                                for (propIndex, propItem) in propsArray.enumerated() {
-                                    if let paramName = propItem.stringValue, propIndex + 1 < propsArray.count {
-                                        // Try to extract type from the next item
-                                        if let typeObj = propsArray[propIndex + 1].objectValue,
-                                           let paramType = typeObj["type"]?.stringValue {
-                                            
-                                            parameterMap[paramName] = paramType
-                                            print("  Found parameter from string format: \(paramName), Type: \(paramType)")
-                                            foundParameters = true
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // If we still don't have parameters, try parsing the description string
-            if !foundParameters && toolName.contains(MCP_SERVER_NAME) {
-                let descriptionStr = schema.description
-                let schemaPattern = #"["'](\w+)["'](?:\s*:\s*["'](\w+)["'])?"#
-                let regex = try? NSRegularExpression(pattern: schemaPattern)
-                let nsRange = NSRange(descriptionStr.startIndex..<descriptionStr.endIndex, in: descriptionStr)
                 
-                if let regex = regex, let match = regex.firstMatch(in: descriptionStr, range: nsRange) {
-                    if match.range(at: 1).location != NSNotFound, 
-                       let paramNameRange = Range(match.range(at: 1), in: descriptionStr) {
-                        let paramName = String(descriptionStr[paramNameRange])
-                        
-                        var paramType = "string" // Default
-                        if match.range(at: 2).location != NSNotFound,
-                           let paramTypeRange = Range(match.range(at: 2), in: descriptionStr) {
-                            paramType = String(descriptionStr[paramTypeRange])
+                // Extract required parameters from object schema
+                if let requiredArray = objectValue["required"]?.arrayValue {
+                    for item in requiredArray {
+                        if let paramName = item.stringValue {
+                            requiredParams.append(paramName)
                         }
-                        
-                        parameterMap[paramName] = paramType
-                        print("  Extracted parameter from description: \(paramName), Type: \(paramType)")
-                        foundParameters = true
                     }
                 }
             }
         }
         
-        // If we still haven't found parameters and this is a server tool, look for 'action' as a fallback
-        if !foundParameters && (toolName == MCP_SERVER_NAME || toolName.hasPrefix("mcp_\(MCP_SERVER_NAME)_")) {
-            // Check the schema string representation for mentions of parameter names
+        // If we still haven't found parameters, try fallback methods
+        if !foundParameters {
+            // Try to parse the description string for parameter names
             let descriptionStr = schema.description
-            if descriptionStr.contains("action") {
-                parameterMap["action"] = "string"
-                print("  Extracted parameter 'action' from schema description")
+            
+            // Look for parameters in the schema description using pattern matching
+            // Try to find a pattern like: "properties": ["paramName": [...]]
+            let propertiesPattern = #"properties"?\s*:\s*\[\s*[\"']([^\"']+)[\"']"#
+            if let regex = try? NSRegularExpression(pattern: propertiesPattern),
+               let match = regex.firstMatch(in: descriptionStr, range: NSRange(descriptionStr.startIndex..., in: descriptionStr)),
+               match.range(at: 1).location != NSNotFound,
+               let paramNameRange = Range(match.range(at: 1), in: descriptionStr) {
+                
+                // Extract the parameter name from the match
+                let paramName = String(descriptionStr[paramNameRange])
+                
+                // Find the type (default to string if not found)
+                var paramType = "string"
+                let typePattern = #"type"?\s*:\s*([^,\]\s]+)"#
+                if let typeRegex = try? NSRegularExpression(pattern: typePattern),
+                   let typeMatch = typeRegex.firstMatch(in: descriptionStr, range: NSRange(descriptionStr.startIndex..., in: descriptionStr)),
+                   typeMatch.range(at: 1).location != NSNotFound,
+                   let typeRange = Range(typeMatch.range(at: 1), in: descriptionStr) {
+                    paramType = String(descriptionStr[typeRange])
+                }
+                
+                // Find descriptions if available
+                let descPattern = #"description"?\s*:\s*([^,\]]+)"#
+                if let descRegex = try? NSRegularExpression(pattern: descPattern),
+                   let descMatch = descRegex.firstMatch(in: descriptionStr, range: NSRange(descriptionStr.startIndex..., in: descriptionStr)),
+                   descMatch.range(at: 1).location != NSNotFound,
+                   let descRange = Range(descMatch.range(at: 1), in: descriptionStr) {
+                    let description = String(descriptionStr[descRange])
+                    paramDescriptions[paramName] = description
+                }
+                
+                // See if this parameter is required
+                let requiredPattern = #"required"?\s*:\s*\[\s*[\"']([^\"']+)[\"']"#
+                if let reqRegex = try? NSRegularExpression(pattern: requiredPattern),
+                   let reqMatch = reqRegex.firstMatch(in: descriptionStr, range: NSRange(descriptionStr.startIndex..., in: descriptionStr)),
+                   reqMatch.range(at: 1).location != NSNotFound,
+                   let reqRange = Range(reqMatch.range(at: 1), in: descriptionStr) {
+                    let requiredParam = String(descriptionStr[reqRange])
+                    if requiredParam == paramName {
+                        requiredParams.append(paramName)
+                    }
+                }
+                
+                parameterMap[paramName] = paramType
+                print("  Extracted parameter from schema description: \(paramName), Type: \(paramType)")
                 foundParameters = true
             }
         }

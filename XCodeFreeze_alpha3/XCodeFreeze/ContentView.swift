@@ -48,8 +48,8 @@ struct ContentView: View {
                         } else {
                             if configFilePath.isEmpty {
                                 showConfigAlert = true
-                            } else {
-                                Task {
+                        } else {
+                            Task {
                                     await viewModel.startClientServer(configPath: configFilePath)
                                 }
                             }
@@ -194,12 +194,12 @@ struct ContentView: View {
         .onAppear {
             // Only start the client and server if we have a config file
             if !configFilePath.isEmpty {
-                Task {
+            Task {
                     await viewModel.startClientServer(configPath: configFilePath)
-                    // Focus the text field after a brief delay
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        isInputFocused = true
-                    }
+                // Focus the text field after a brief delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    isInputFocused = true
+                }
                 }
             } else {
                 viewModel.addInfoMessage("Please select a configuration file to connect.")
