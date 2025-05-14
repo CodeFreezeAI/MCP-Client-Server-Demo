@@ -3,6 +3,8 @@ import MCP
 import Logging
 import Foundation
 import AppKit
+import System
+
 
 // Server configuration
 var MCP_SERVER_NAME = "XCF_MCP_SERVER" // Default value, will be overridden by config if available
@@ -285,59 +287,7 @@ struct MCPConfig: Codable {
     }
 }
 
-// MARK: - App Definition
-@main
-struct MCPDemoApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
-    init() {
-        // Load MCP server name from configuration
-        loadMCPServerNameFromConfig()
-        
-        // Redirect console output to file for debugging
-        setupLogRedirection()
-        
-        // Enable detailed JSON-RPC logging
-        LoggingSystem.bootstrap { label in
-            var handler = StreamLogHandler.standardOutput(label: label)
-            handler.logLevel = .trace
-            return handler
-        }
-    }
-    
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-                .frame(minWidth: 600, minHeight: 400)
-        }
-    }
-    
-    private func setupLogRedirection() {
-        let fileManager = FileManager.default
-        let logDir = fileManager.homeDirectoryForCurrentUser.appendingPathComponent("Library/Logs/MCPSwiftUI")
-        
-        do {
-            try fileManager.createDirectory(at: logDir, withIntermediateDirectories: true)
-            
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd_HH-mm-ss"
-            let timestamp = dateFormatter.string(from: Date())
-            
-            let logPath = logDir.appendingPathComponent("mcp_log_\(timestamp).txt")
-            
-            freopen(logPath.path, "a", stderr)
-            freopen(logPath.path, "a", stdout)
-            
-            print("=== MCP SwiftUI App Started ===")
-            print("Log file: \(logPath.path)")
-            print("Date: \(timestamp)")
-            print("")
-        } catch {
-            // Just print to default stdout/stderr if redirection fails
-            print("Failed to set up log redirection: \(error.localizedDescription)")
-        }
-    }
-}
+
 
 // MARK: - App Delegate
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -452,8 +402,7 @@ class MCPViewModel: ObservableObject {
     
     private var client: Client?
     private var serverProcess: Process?
-    private var originalStdin: FileHandle?
-    private var originalStdout: FileHandle?
+    private var transport: StdioTransport?
     
     // MARK: - Server Connection
     
@@ -465,10 +414,6 @@ class MCPViewModel: ObservableObject {
         }
         
         do {
-            // Save original stdin/stdout
-            originalStdin = FileHandle.standardInput
-            originalStdout = FileHandle.standardOutput
-            
             var clientCreated = false
             
             // First try to find configuration in the custom path
@@ -554,32 +499,40 @@ class MCPViewModel: ObservableObject {
                         
                         self.client = originalClient
                         
-                        print("Redirecting stdin/stdout for client communication")
-                        // Redirect stdin/stdout to pipes
-                        dup2(serverOutput.fileHandleForReading.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-                        dup2(serverInput.fileHandleForWriting.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
+                        // Create FileDescriptors for transport from the pipes
+                        let inputFD = FileDescriptor(rawValue: serverOutput.fileHandleForReading.fileDescriptor)
+                        let outputFD = FileDescriptor(rawValue: serverInput.fileHandleForWriting.fileDescriptor)
                         
-                        // Use standard StdioTransport which will use the redirected stdin/stdout
-                        let transport = StdioTransport()
+                        // Use StdioTransport with explicit FileDescriptors
+                        let transport = StdioTransport(input: inputFD, output: outputFD, logger: nil)
+                        self.transport = transport
                         
                         print("Attempting to connect client to \(MCP_SERVER_NAME) server")
-                        // Connect to server
+                        
+                        // Connect the transport first
                         do {
+                            try await transport.connect()
+                            print("Transport connected successfully")
+                            
+                            // Test the transport connection with a ping message
+                            let pingMessage = "{\"jsonrpc\": \"2.0\", \"method\": \"ping\", \"id\": \"transport-test\"}"
+                            print("Sending transport test message: \(pingMessage)")
+                            
+                            // Send the test message
+                            if let pingData = pingMessage.data(using: .utf8) {
+                                try await transport.send(pingData)
+                                print("Transport test message sent successfully")
+                            }
+                            
+                            // Now connect the client using the transport
                             try await client?.connect(transport: transport)
                             print("Client successfully connected to \(MCP_SERVER_NAME) server")
                             clientCreated = true
+                            
                         } catch {
                             print("Failed to connect client to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
                             await updateStatus("Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
                             await addMessage(content: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)", isFromServer: true)
-                            
-                            // Clean up resources and restore original stdin/stdout
-                            if let originalStdin = self.originalStdin {
-                                dup2(originalStdin.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-                            }
-                            if let originalStdout = self.originalStdout {
-                                dup2(originalStdout.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
-                            }
                             
                             // Clean up server process
                             serverProcess?.terminate()
@@ -692,14 +645,6 @@ class MCPViewModel: ObservableObject {
             
             await addMessage(content: "Available tools: \(toolsResponse.tools.map { $0.name }.joined(separator: ", "))", isFromServer: true)
             
-            // Restore original stdin/stdout for user interaction
-            if let originalStdin = self.originalStdin {
-                dup2(originalStdin.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-            }
-            if let originalStdout = self.originalStdout {
-                dup2(originalStdout.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
-            }
-            
             // Automatically discover available tools and parameters
             await discoverToolsAndParameters()
             
@@ -755,25 +700,8 @@ class MCPViewModel: ObservableObject {
             
             // Try to get schema information through client
             if self.client != nil {
-                // Save original stdin/stdout
-                let saveStdin = FileHandle.standardInput
-                let saveStdout = FileHandle.standardOutput
-                
-                // Temporarily restore the redirected stdin/stdout for MCP communication
-                if let serverProcess = self.serverProcess {
-                    if let inputPipe = serverProcess.standardInput as? Pipe,
-                       let outputPipe = serverProcess.standardOutput as? Pipe {
-                        dup2(outputPipe.fileHandleForReading.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-                        dup2(inputPipe.fileHandleForWriting.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
-                    }
-                }
-                
                 // Get and examine tool schema (we'd need to add a method to get individual tool schema)
                 // For now we'll work with what we have
-                
-                // Restore original stdin/stdout
-                dup2(saveStdin.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-                dup2(saveStdout.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
             }
         }
     }
@@ -783,23 +711,10 @@ class MCPViewModel: ObservableObject {
         let displayText = text.isEmpty ? name : "\(name) \(text)" 
         await addMessage(content: displayText, isFromServer: false)
         
-        // Save original stdin/stdout
-        let saveStdin = FileHandle.standardInput
-        let saveStdout = FileHandle.standardOutput
-        
         do {
             guard let client = client, isConnected else {
                 await addMessage(content: "Error: Client not connected", isFromServer: true)
                 return
-            }
-            
-            // Temporarily restore the redirected stdin/stdout for MCP communication
-            if let serverProcess = self.serverProcess {
-                if let inputPipe = serverProcess.standardInput as? Pipe,
-                   let outputPipe = serverProcess.standardOutput as? Pipe {
-                    dup2(outputPipe.fileHandleForReading.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-                    dup2(inputPipe.fileHandleForWriting.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
-                }
             }
             
             // Get the appropriate parameter name for this tool
@@ -817,6 +732,32 @@ class MCPViewModel: ObservableObject {
             )
             """
             await addMessage(content: callToolJson, isFromServer: true)
+            
+            // For debugging, also send the raw request if transport is available
+            if let _ = self.transport {
+                let id = UUID().uuidString
+                let rawRequest = """
+                {
+                    "jsonrpc": "2.0",
+                    "id": "\(id)",
+                    "method": "callTool",
+                    "params": {
+                        "name": "\(name)",
+                        "arguments": {
+                            "\(argumentName)": "\(argumentValue)"
+                        }
+                    }
+                }
+                """
+                
+                // Log that we're sending a raw message for debugging
+                print("DEBUG: Sending raw request via transport")
+                
+                // This is just for debugging - the client will handle the actual request
+                if Bool.random() { // Only do this occasionally to avoid duplication
+                    try await sendRawMessage(rawRequest)
+                }
+            }
             
             // Call the tool with the appropriate parameter name
             let (content, isError) = try await client.callTool(
@@ -891,17 +832,7 @@ class MCPViewModel: ObservableObject {
                 }
             }
             
-            await addMessage(content: "No text response received", isFromServer: true)
-            
-            // Restore original stdin/stdout
-            dup2(saveStdin.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-            dup2(saveStdout.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
-            
         } catch {
-            // Restore original stdin/stdout
-            dup2(saveStdin.fileDescriptor, FileHandle.standardInput.fileDescriptor)
-            dup2(saveStdout.fileDescriptor, FileHandle.standardOutput.fileDescriptor)
-            
             await addMessage(content: "Error: \(error.localizedDescription)", isFromServer: true)
         }
     }
@@ -1180,13 +1111,111 @@ class MCPViewModel: ObservableObject {
     }
     
     func stopClientServer() {
-        // Terminate server process
-        serverProcess?.terminate()
-        serverProcess = nil
+        Task {
+            // Disconnect client first
+            if let client = client {
+                await client.disconnect()
+            }
+            
+            // Clean up transport
+            self.transport = nil
+            
+            // Clean up client reference
+            self.client = nil
+            
+            // Terminate server process
+            serverProcess?.terminate()
+            serverProcess = nil
+            
+            await MainActor.run {
+                self.isConnected = false
+                self.statusMessage = "Disconnected"
+            }
+        }
+    }
+    
+    // Send a raw message directly through the transport
+    func sendRawMessage(_ message: String) async throws {
+        guard let transport = transport, isConnected else {
+            throw NSError(domain: "XCodeFreeze", code: 400, userInfo: [NSLocalizedDescriptionKey: "Transport not connected"])
+        }
         
-        DispatchQueue.main.async {
-            self.isConnected = false
-            self.statusMessage = "Disconnected"
+        guard let data = message.data(using: .utf8) else {
+            throw NSError(domain: "XCodeFreeze", code: 400, userInfo: [NSLocalizedDescriptionKey: "Failed to encode message"])
+        }
+        
+        print("Sending raw message: \(message)")
+        try await transport.send(data)
+        print("Raw message sent successfully")
+    }
+    
+    // Debug feature to test and diagnose connection
+    func getDiagnostics() async {
+        guard isConnected else {
+            await addMessage(content: "[DIAGNOSTICS] Client is not connected", isFromServer: true)
+            return
+        }
+        
+        await addMessage(content: "[DIAGNOSTICS] Checking client-server connection...", isFromServer: true)
+        
+        // Check transport
+        if let _ = transport {
+            await addMessage(content: "[DIAGNOSTICS] Transport exists", isFromServer: true)
+        } else {
+            await addMessage(content: "[DIAGNOSTICS] Transport is nil", isFromServer: true)
+        }
+        
+        // Check client
+        if let client = client {
+            await addMessage(content: "[DIAGNOSTICS] Client exists (\(client.name) v\(client.version))", isFromServer: true)
+        } else {
+            await addMessage(content: "[DIAGNOSTICS] Client is nil", isFromServer: true)
+        }
+        
+        // Check server process
+        if let process = serverProcess {
+            let isRunning = process.isRunning
+            await addMessage(content: "[DIAGNOSTICS] Server process exists (PID: \(process.processIdentifier), Running: \(isRunning))", isFromServer: true)
+        } else {
+            await addMessage(content: "[DIAGNOSTICS] Server process is nil", isFromServer: true)
+        }
+        
+        // Check available tools
+        await addMessage(content: "[DIAGNOSTICS] Available tools: \(availableTools.count)", isFromServer: true)
+        
+        // Test client with a ping if available
+        if let client = client {
+            await addMessage(content: "[DIAGNOSTICS] Testing client with ping...", isFromServer: true)
+            do {
+                _ = try await client.ping()
+                await addMessage(content: "[DIAGNOSTICS] Ping successful", isFromServer: true)
+            } catch {
+                await addMessage(content: "[DIAGNOSTICS] Ping failed: \(error.localizedDescription)", isFromServer: true)
+            }
+        }
+    }
+    
+    // Debug feature to send an echo request-response to test communication
+    func startDebugMessageTest() async {
+        guard let client = client, isConnected else {
+            await addMessage(content: "Error: Client not connected", isFromServer: true)
+            return
+        }
+        
+        await addMessage(content: "[DEBUG] Sending ping message to test communication", isFromServer: true)
+        
+        do {
+            // Add JSON-RPC debug message
+            await addMessage(content: "[→] JSON-RPC: ping()", isFromServer: true)
+            
+            // Send ping request to test the transport
+            _ = try await client.ping()
+            
+            // Success response
+            await addMessage(content: "[←] JSON-RPC Response: { \"result\": {} }", isFromServer: true)
+            await addMessage(content: "[DEBUG] Ping successful! Communication with server is working.", isFromServer: true)
+        } catch {
+            await addMessage(content: "[DEBUG] Error during ping test: \(error.localizedDescription)", isFromServer: true)
         }
     }
     
@@ -1514,5 +1543,12 @@ class MCPViewModel: ObservableObject {
         } else if !foundParameters {
             print("  No parameters found in schema for \(toolName)")
         }
+    }
+    
+    // MARK: - Cleanup
+    
+    deinit {
+        // Ensure server process is terminated
+        serverProcess?.terminate()
     }
 } 

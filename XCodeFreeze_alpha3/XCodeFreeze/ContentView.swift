@@ -148,6 +148,28 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(!viewModel.isConnected || inputText.isEmpty)
+                
+                Button("Debug") {
+                    if viewModel.isConnected {
+                        Task {
+                            await viewModel.startDebugMessageTest()
+                        }
+                    }
+                }
+                .buttonStyle(.bordered)
+                .disabled(!viewModel.isConnected)
+                .help("Test server communication by sending a ping request")
+                
+                Button("Diagnostics") {
+                    if viewModel.isConnected {
+                        Task {
+                            await viewModel.getDiagnostics()
+                        }
+                    }
+                }
+                .buttonStyle(.bordered)
+                .disabled(!viewModel.isConnected)
+                .help("Check client and transport state")
             }
             .padding()
             
