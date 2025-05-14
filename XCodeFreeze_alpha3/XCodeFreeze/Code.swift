@@ -5,9 +5,9 @@ import Foundation
 import AppKit
 
 // Server configuration
-var MCP_SERVER_NAME = "xcf" // Default value, will be overridden by config if available
-let MCP_CLIENT_NAME = "MCPSwiftUIClient"
-let MCP_CLIENT_DEFAULT_VERSION = "1.0.3" // Default version for initial connection
+var MCP_SERVER_NAME = "XCF_MCP_SERVER" // Default value, will be overridden by config if available
+let MCP_CLIENT_NAME = "XCodeFreeze"
+let MCP_CLIENT_DEFAULT_VERSION = "1.0.0" // Default version for initial connection
 
 // MARK: - Function to determine user home directory
 private func getUserHomeDirectory() -> String {
@@ -93,6 +93,10 @@ class ToolRegistry {
         return toolExampleMap[toolName]?[paramName]
     }
     
+    func getToolSchema(for toolName: String) -> [String: String]? {
+        return toolSchemaMap[toolName]
+    }
+    
     func getParameterName(for toolName: String) -> String {
         // First check if we have discovered schema info for this tool
         if let schema = toolSchemaMap[toolName], !schema.isEmpty {
@@ -105,11 +109,6 @@ class ToolRegistry {
         // Second check if we have registered parameter info
         if let parameters = getParameterInfo(for: toolName), !parameters.isEmpty {
             return parameters[0].name
-        }
-        
-        // Fallback for legacy support: use "action" for server tools
-        if toolName.lowercased() == MCP_SERVER_NAME || toolName.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME)_") {
-            return "action"
         }
         
         // Default to "text" if we don't have any info
@@ -125,8 +124,6 @@ class ToolRegistry {
     func getParameterSource(for toolName: String) -> String {
         if toolSchemaMap[toolName] != nil {
             return "(schema-discovered)"
-        } else if toolName.lowercased() == MCP_SERVER_NAME || toolName.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME)_") {
-            return "(hardcoded-\(MCP_SERVER_NAME))"
         } else if toolParameterMap[toolName] != nil {
             return "(registered)"
         } else {
@@ -171,7 +168,7 @@ struct MCPConfig: Codable {
     }
     
     static func loadConfig(customPath: String? = nil) throws -> MCPConfig {
-        // If a custom path is provided, try it first
+        // If a custom path is provided, use it
         if let customPath = customPath, !customPath.isEmpty {
             print("Attempting to load MCP config from custom path: \(customPath)")
             
@@ -180,11 +177,50 @@ struct MCPConfig: Codable {
                 let data = try Data(contentsOf: URL(fileURLWithPath: customPath))
                 print("Config file loaded from custom path, size: \(data.count) bytes")
                 
+                // First validate JSON structure
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    
+                    // Check if mcpServers key exists
+                    guard let mcpServers = json?["mcpServers"] as? [String: Any], !mcpServers.isEmpty else {
+                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Config file is missing or has empty 'mcpServers' section. Please add server configuration."])
+                    }
+                    
+                    // Check at least one server configuration
+                    let serverKeys = mcpServers.keys
+                    print("Found servers in config: \(serverKeys.joined(separator: ", "))")
+                    
+                    // Check that servers have required fields
+                    for (serverName, serverConfig) in mcpServers {
+                        guard let serverDict = serverConfig as? [String: Any],
+                              let _ = serverDict["command"] as? String else {
+                            throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Server '\(serverName)' is missing required 'command' field."])
+                        }
+                    }
+                } catch let validationError as NSError {
+                    if validationError.domain == "MCPConfig" {
+                        throw validationError
+                    } else {
+                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format: \(validationError.localizedDescription)"])
+                    }
+                }
+                
+                // If validation passes, decode normally
                 let decoder = JSONDecoder()
-                return try decoder.decode(MCPConfig.self, from: data)
+                let config = try decoder.decode(MCPConfig.self, from: data)
+                
+                // Set initial MCP_SERVER_NAME from config
+                if !config.mcpServers.isEmpty {
+                    if let firstServerName = config.mcpServers.keys.first {
+                        MCP_SERVER_NAME = firstServerName
+                        print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
+                    }
+                }
+                
+                return config
             } else {
                 print("Custom config file does not exist at path: \(customPath)")
-                // Fall through to try UserDefaults saved path
+                throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "Specified config file does not exist: \(customPath)"])
             }
         }
         
@@ -197,66 +233,55 @@ struct MCPConfig: Codable {
                 let data = try Data(contentsOf: URL(fileURLWithPath: savedPath))
                 print("Config file loaded from saved path, size: \(data.count) bytes")
                 
-                let decoder = JSONDecoder()
-                return try decoder.decode(MCPConfig.self, from: data)
-            } else {
-                print("Saved config file does not exist at path: \(savedPath)")
-                // Fall through to fallback paths
-            }
-        }
-        
-        // Fallback to common locations as a last resort
-        let userHome = FileManager.default.homeDirectoryForCurrentUser.path
-        let fallbackPaths = [
-            "\(userHome)/.cursor/mcp.json",
-            "\(userHome)/.mcp/config.json",
-            "\(userHome)/.config/mcp/mcp.json",
-            "\(userHome)/Library/Application Support/cursor/mcp.json"
-        ]
-        
-        let fileManager = FileManager.default
-        for path in fallbackPaths {
-            if fileManager.fileExists(atPath: path) {
-                print("Found config at fallback path: \(path)")
-                let data = try Data(contentsOf: URL(fileURLWithPath: path))
-                print("Config file loaded from fallback path, size: \(data.count) bytes")
+                // Validate JSON structure
+                do {
+                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    
+                    // Check if mcpServers key exists
+                    guard let mcpServers = json?["mcpServers"] as? [String: Any], !mcpServers.isEmpty else {
+                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Config file is missing or has empty 'mcpServers' section. Please add server configuration."])
+                    }
+                    
+                    // Check at least one server configuration
+                    let serverKeys = mcpServers.keys
+                    print("Found servers in config: \(serverKeys.joined(separator: ", "))")
+                    
+                    // Check that servers have required fields
+                    for (serverName, serverConfig) in mcpServers {
+                        guard let serverDict = serverConfig as? [String: Any],
+                              let _ = serverDict["command"] as? String else {
+                            throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Server '\(serverName)' is missing required 'command' field."])
+                        }
+                    }
+                } catch let validationError as NSError {
+                    if validationError.domain == "MCPConfig" {
+                        throw validationError
+                    } else {
+                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format: \(validationError.localizedDescription)"])
+                    }
+                }
                 
+                // If validation passes, decode normally
                 let decoder = JSONDecoder()
                 let config = try decoder.decode(MCPConfig.self, from: data)
                 
-                // Return the first server name found and set it as MCP_SERVER_NAME
+                // Set initial MCP_SERVER_NAME from config
                 if !config.mcpServers.isEmpty {
-                    // Get the first server name
                     if let firstServerName = config.mcpServers.keys.first {
                         MCP_SERVER_NAME = firstServerName
                         print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
                     }
-                    
-                    // Print all available servers for debug purposes
-                    print("Available servers in config: \(config.mcpServers.keys.joined(separator: ", "))")
-                }
-                
-                // Print config contents for debugging
-                if let serverConfig = config.mcpServers[MCP_SERVER_NAME] {
-                    let typeStr = serverConfig.type ?? "stdio (default)"
-                    print("\(MCP_SERVER_NAME) server found in config: type=\(typeStr), command=\(serverConfig.command)")
-                    
-                    if let args = serverConfig.args {
-                        print("\(MCP_SERVER_NAME) args: \(args)")
-                    }
-                    
-                    if let env = serverConfig.env {
-                        print("\(MCP_SERVER_NAME) env variables: \(env.keys.joined(separator: ", "))")
-                    }
-                } else {
-                    print("No \(MCP_SERVER_NAME) server found in config")
                 }
                 
                 return config
+            } else {
+                print("Saved config file does not exist at path: \(savedPath)")
+                throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "Saved config file no longer exists: \(savedPath)"])
             }
         }
         
-        throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "Config file not found in any location"])
+        // If we get here, no config file was found
+        throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "No configuration file selected. Please select or create a configuration file."])
     }
 }
 
@@ -330,7 +355,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func debugPrintMCPConfigFile() {
         do {
-            // Try to use the path from UserDefaults first
+            // Try to use the path from UserDefaults
             if let savedPath = UserDefaults.standard.string(forKey: "savedConfigPath"), !savedPath.isEmpty {
                 print("Checking for MCP config at saved path: \(savedPath)")
                 
@@ -341,38 +366,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                         print("=== START MCP CONFIG FILE CONTENTS ===")
                         print(jsonString)
                         print("=== END MCP CONFIG FILE CONTENTS ===")
-                        return
                     }
                 } else {
                     print("Saved config file does not exist at path: \(savedPath)")
-                    // Fall through to fallback paths
                 }
+            } else {
+                print("No configuration file selected in UserDefaults")
             }
-
-            // Fallback to common locations
-            let userHome = FileManager.default.homeDirectoryForCurrentUser.path
-            let fallbackPaths = [
-                "\(userHome)/.cursor/mcp.json",
-                "\(userHome)/.mcp/config.json",
-                "\(userHome)/.config/mcp/mcp.json",
-                "\(userHome)/Library/Application Support/cursor/mcp.json"
-            ]
-            
-            let fileManager = FileManager.default
-            for path in fallbackPaths {
-                if fileManager.fileExists(atPath: path) {
-                    print("Found config at fallback path: \(path)")
-                    if let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
-                       let jsonString = String(data: data, encoding: .utf8) {
-                        print("=== START MCP CONFIG FILE CONTENTS (FALLBACK PATH) ===")
-                        print(jsonString)
-                        print("=== END MCP CONFIG FILE CONTENTS (FALLBACK PATH) ===")
-                        return
-                    }
-                }
-            }
-            
-            print("Could not find any MCP config file")
         } catch {
             print("Error reading MCP config file: \(error.localizedDescription)")
         }
@@ -469,7 +469,9 @@ class MCPViewModel: ObservableObject {
             originalStdin = FileHandle.standardInput
             originalStdout = FileHandle.standardOutput
             
-            // First try to find configuration in ~/.cursor/mcp.json or custom path
+            var clientCreated = false
+            
+            // First try to find configuration in the custom path
             do {
                 let config = try MCPConfig.loadConfig(customPath: configPath)
                 
@@ -565,20 +567,37 @@ class MCPViewModel: ObservableObject {
                         do {
                             try await client!.connect(transport: transport)
                             print("Client successfully connected to \(MCP_SERVER_NAME) server")
+                            clientCreated = true
                         } catch {
                             print("Failed to connect client to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
                             await updateStatus("Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
                             await addMessage(content: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)", isFromServer: true)
+                            
+                            // Clean up resources
+                            stopClientServer()
                             return
                         }
                     } else {
                         print("\(MCP_SERVER_NAME) server type \(serverType) is not supported, using built-in server")
                         await addMessage(content: "\(MCP_SERVER_NAME) server type \(serverType) is not supported, using built-in server", isFromServer: true)
                     }
+                } else {
+                    await addMessage(content: "Error: No server configuration found for \(MCP_SERVER_NAME) in config file.", isFromServer: true)
+                    await updateStatus("No server configuration found")
+                    return
                 }
             } catch {
                 print("Error loading MCP config: \(error.localizedDescription)")
-                await addMessage(content: "Could not load mcp.json: \(error.localizedDescription). Using built-in server.", isFromServer: true)
+                await addMessage(content: "Error loading config: \(error.localizedDescription)", isFromServer: true)
+                await updateStatus("Config error: \(error.localizedDescription)")
+                return
+            }
+            
+            // Verify that client was created successfully
+            guard client != nil && clientCreated else {
+                await addMessage(content: "Error: Failed to create MCP client", isFromServer: true)
+                await updateStatus("Client creation failed")
+                return
             }
             
             // Common code for both server types
@@ -605,10 +624,6 @@ class MCPViewModel: ObservableObject {
             
             await updateStatus("Connected to: \(serverName) v\(serverVersion)")
             await addMessage(content: "Connected to server: \(serverName) v\(serverVersion)", isFromServer: true)
-            
-            // We'll store the server version for future use, but don't create a new client
-            // which could disrupt the existing connection
-            // client = Client(name: MCP_CLIENT_NAME, version: serverVersion)
             
             // Add JSON-RPC debug message for listTools
             await addMessage(content: "[→] JSON-RPC: listTools()", isFromServer: true)
@@ -919,14 +934,32 @@ class MCPViewModel: ObservableObject {
             
             // Register the parameter info for each server action
             for action in serverActions {
-                let description = actionDescriptions[action]
-                let paramInfo = ToolParameterInfo(
-                    name: "action", 
-                    isRequired: true, 
-                    type: "string",
-                    description: description
-                )
-                ToolRegistry.shared.registerParameterInfo(for: action, parameters: [paramInfo])
+                // Try to discover parameter name for this server
+                // First, look for matching server tools that might have schema info
+                if let schema = ToolRegistry.shared.getToolSchema(for: MCP_SERVER_NAME), !schema.isEmpty {
+                    // Use the first parameter name from the server's schema
+                    if let firstParamName = schema.keys.first {
+                        let description = actionDescriptions[action]
+                        let paramInfo = ToolParameterInfo(
+                            name: firstParamName, 
+                            isRequired: true, 
+                            type: "string",
+                            description: description
+                        )
+                        ToolRegistry.shared.registerParameterInfo(for: action, parameters: [paramInfo])
+                    }
+                } else {
+                    // If no schema is found, register with a generic parameter name
+                    // This will be updated later if schema is discovered
+                    let description = actionDescriptions[action]
+                    let paramInfo = ToolParameterInfo(
+                        name: "text", 
+                        isRequired: true, 
+                        type: "string",
+                        description: description
+                    )
+                    ToolRegistry.shared.registerParameterInfo(for: action, parameters: [paramInfo])
+                }
             }
             
             // Create local copies to avoid Swift 6 concurrency issues
@@ -1048,6 +1081,33 @@ class MCPViewModel: ObservableObject {
         }
         
         if !tools.isEmpty {
+            // Check for server-related tools and try to extract their schema
+            if tools.contains(MCP_SERVER_NAME) || tools.contains(where: { $0.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME.lowercased())_") }) {
+                // If we find a tool that matches the server name, examine its schema
+                for tool in tools {
+                    if tool == MCP_SERVER_NAME || tool.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME.lowercased())_") {
+                        // Try to extract param info if available in the description
+                        if let description = toolDescriptions[tool], 
+                           description.contains("inputSchema") {
+                            // Look for parameter names in the schema
+                            let schemaPattern = #"(?:inputSchema|parameters|properties).*?["'](\w+)["']"#
+                            if let regex = try? NSRegularExpression(pattern: schemaPattern),
+                               let match = regex.firstMatch(in: description, range: NSRange(description.startIndex..., in: description)),
+                               match.range(at: 1).location != NSNotFound,
+                               let paramNameRange = Range(match.range(at: 1), in: description) {
+                                let paramName = String(description[paramNameRange])
+                                
+                                // Register this parameter name for the server
+                                let schema = [paramName: "string"]
+                                ToolRegistry.shared.registerToolSchema(for: tool, schema: schema)
+                                
+                                print("Extracted server parameter name from schema: \(paramName)")
+                            }
+                        }
+                    }
+                }
+            }
+            
             // For each tool, check if it already has schema or parameter info
             for tool in tools {
                 // Skip if we already have schema info for this tool
@@ -1056,27 +1116,16 @@ class MCPViewModel: ObservableObject {
                     continue
                 }
                 
-                // For server-related tools, we assume they use "action" if no schema is found
-                if tool.lowercased() == MCP_SERVER_NAME || tool.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME)_") {
-                    let description = toolDescriptions[tool]
-                    let paramInfo = ToolParameterInfo(
-                        name: "action", 
-                        isRequired: true, 
-                        type: "string",
-                        description: description
-                    )
-                    ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
-                } else {
-                    // For standard tools, assume they use "text" parameter if no schema is found
-                    let description = toolDescriptions[tool]
-                    let paramInfo = ToolParameterInfo(
-                        name: "text", 
-                        isRequired: true, 
-                        type: "string",
-                        description: description
-                    )
-                    ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
-                }
+                // For tools without explicit schema, register with default parameter
+                let paramName = "text" // Default parameter name
+                let description = toolDescriptions[tool]
+                let paramInfo = ToolParameterInfo(
+                    name: paramName, 
+                    isRequired: true, 
+                    type: "string",
+                    description: description
+                )
+                ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
             }
             
             // Create local copies to avoid Swift 6 concurrency issues
@@ -1162,6 +1211,9 @@ class MCPViewModel: ObservableObject {
         var requiredParams: [String] = []
         var paramDescriptions: [String: String] = [:]
         var paramExamples: [String: String] = [:]
+        
+        // Debug - output raw schema for inspection
+        print("Raw schema for \(toolName): \(schema)")
         
         // Try different schema formats to extract parameter info
         if let objectValue = schema.objectValue {
@@ -1288,73 +1340,115 @@ class MCPViewModel: ObservableObject {
             }
         } else if let arrayValue = schema.arrayValue {
             // Handle schema that's provided as an array of key-value pairs
-            // Scan array items for structure information
-            for item in arrayValue {
-                // Look for "required" array
-                if let key = item.arrayValue?.first?.stringValue, 
-                   key == "required", 
-                   let reqArray = item.arrayValue?.last?.arrayValue {
-                    for reqItem in reqArray {
-                        if let paramName = reqItem.stringValue {
-                            requiredParams.append(paramName)
-                            print("  Found required parameter: \(paramName)")
+            // Special case handling for formatted array schema like ["required": ["action"], "properties": ["action": ["type": "string"]]]
+            if !arrayValue.isEmpty {
+                // Try to interpret array elements
+                for (index, item) in arrayValue.enumerated() {
+                    if let itemArray = item.arrayValue, itemArray.count >= 2 {
+                        if let key = itemArray[0].stringValue, key == "required" {
+                            // This is a required parameter array
+                            if let requiredList = itemArray[1].arrayValue {
+                                for reqItem in requiredList {
+                                    if let paramName = reqItem.stringValue {
+                                        requiredParams.append(paramName)
+                                        print("  Found required parameter: \(paramName)")
+                                    }
+                                }
+                            } else if let paramName = itemArray[1].stringValue {
+                                requiredParams.append(paramName)
+                                print("  Found required parameter: \(paramName)")
+                            }
+                        } else if let key = itemArray[0].stringValue, key == "properties" {
+                            // This is a properties object
+                            if let propsArray = itemArray[1].arrayValue {
+                                for propItem in propsArray {
+                                    if let propArray = propItem.arrayValue, propArray.count >= 2 {
+                                        if let paramName = propArray[0].stringValue {
+                                            // Look for type definition
+                                            if let paramProps = propArray[1].arrayValue {
+                                                for propDef in paramProps {
+                                                    if let propDefArray = propDef.arrayValue, propDefArray.count >= 2,
+                                                        let propKey = propDefArray[0].stringValue, propKey == "type",
+                                                        let propType = propDefArray[1].stringValue {
+                                                        
+                                                        parameterMap[paramName] = propType
+                                                        print("  Found parameter in array properties: \(paramName), Type: \(propType)")
+                                                        foundParameters = true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
-                }
-                
-                // Look for "properties" object
-                if let key = item.arrayValue?.first?.stringValue, 
-                   key == "properties", 
-                   let propsArray = item.arrayValue?.last?.arrayValue {
-                    for propItem in propsArray {
-                        if let propArray = propItem.arrayValue,
-                           propArray.count >= 2,
-                           let paramName = propArray[0].stringValue,
-                           let paramProps = propArray[1].arrayValue {
-                            
-                            // Extract type information
-                            for prop in paramProps {
-                                if let propArr = prop.arrayValue,
-                                   propArr.count >= 2,
-                                   let propName = propArr[0].stringValue,
-                                   propName == "type",
-                                   let paramType = propArr[1].stringValue {
-                                    
-                                    parameterMap[paramName] = paramType
-                                    print("  Found array parameter: \(paramName), Type: \(paramType)")
-                                    foundParameters = true
+                    } else if let stringValue = item.stringValue {
+                        // Sometimes input schema is provided as serialized JSON strings
+                        if stringValue == "required" && index + 1 < arrayValue.count {
+                            // Next item should be an array of required params
+                            if let reqArray = arrayValue[index + 1].arrayValue {
+                                for reqItem in reqArray {
+                                    if let paramName = reqItem.stringValue {
+                                        requiredParams.append(paramName)
+                                        print("  Found required parameter from string format: \(paramName)")
+                                    }
                                 }
-                                
-                                // Extract description information
-                                if let propArr = prop.arrayValue,
-                                   propArr.count >= 2,
-                                   let propName = propArr[0].stringValue,
-                                   propName == "description",
-                                   let description = propArr[1].stringValue {
-                                    
-                                    paramDescriptions[paramName] = description
-                                }
-                                
-                                // Extract example information
-                                if let propArr = prop.arrayValue,
-                                   propArr.count >= 2,
-                                   let propName = propArr[0].stringValue,
-                                   (propName == "example" || propName == "default"),
-                                   let example = propArr[1].stringValue {
-                                    
-                                    paramExamples[paramName] = example
+                            }
+                        } else if stringValue == "properties" && index + 1 < arrayValue.count {
+                            // Next item should be properties
+                            if let propsArray = arrayValue[index + 1].arrayValue {
+                                for (propIndex, propItem) in propsArray.enumerated() {
+                                    if let paramName = propItem.stringValue, propIndex + 1 < propsArray.count {
+                                        // Try to extract type from the next item
+                                        if let typeObj = propsArray[propIndex + 1].objectValue,
+                                           let paramType = typeObj["type"]?.stringValue {
+                                            
+                                            parameterMap[paramName] = paramType
+                                            print("  Found parameter from string format: \(paramName), Type: \(paramType)")
+                                            foundParameters = true
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
+            
+            // If we still don't have parameters, try parsing the description string
+            if !foundParameters && toolName.contains(MCP_SERVER_NAME) {
+                let descriptionStr = schema.description
+                let schemaPattern = #"["'](\w+)["'](?:\s*:\s*["'](\w+)["'])?"#
+                let regex = try? NSRegularExpression(pattern: schemaPattern)
+                let nsRange = NSRange(descriptionStr.startIndex..<descriptionStr.endIndex, in: descriptionStr)
                 
-                // Look for "type" directly
-                if let key = item.arrayValue?.first?.stringValue, 
-                   key == "type", 
-                   let typeVal = item.arrayValue?.last?.stringValue {
-                    print("  Schema type: \(typeVal)")
+                if let regex = regex, let match = regex.firstMatch(in: descriptionStr, range: nsRange) {
+                    if match.range(at: 1).location != NSNotFound, 
+                       let paramNameRange = Range(match.range(at: 1), in: descriptionStr) {
+                        let paramName = String(descriptionStr[paramNameRange])
+                        
+                        var paramType = "string" // Default
+                        if match.range(at: 2).location != NSNotFound,
+                           let paramTypeRange = Range(match.range(at: 2), in: descriptionStr) {
+                            paramType = String(descriptionStr[paramTypeRange])
+                        }
+                        
+                        parameterMap[paramName] = paramType
+                        print("  Extracted parameter from description: \(paramName), Type: \(paramType)")
+                        foundParameters = true
+                    }
                 }
+            }
+        }
+        
+        // If we still haven't found parameters and this is a server tool, look for 'action' as a fallback
+        if !foundParameters && (toolName == MCP_SERVER_NAME || toolName.hasPrefix("mcp_\(MCP_SERVER_NAME)_")) {
+            // Check the schema string representation for mentions of parameter names
+            let descriptionStr = schema.description
+            if descriptionStr.contains("action") {
+                parameterMap["action"] = "string"
+                print("  Extracted parameter 'action' from schema description")
+                foundParameters = true
             }
         }
         

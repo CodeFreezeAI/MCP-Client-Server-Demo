@@ -14,6 +14,7 @@ struct ContentView: View {
     @FocusState private var isInputFocused: Bool
     @State private var scrollToBottom = true
     @State var configFilePath = UserDefaults.standard.string(forKey: "savedConfigPath") ?? ""
+    @State private var showConfigAlert = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -46,8 +47,12 @@ struct ContentView: View {
                         if viewModel.isConnected {
                             viewModel.stopClientServer()
                         } else {
-                            Task {
-                                await viewModel.startClientServer(configPath: configFilePath.isEmpty ? nil : configFilePath)
+                            if configFilePath.isEmpty {
+                                showConfigAlert = true
+                            } else {
+                                Task {
+                                    await viewModel.startClientServer(configPath: configFilePath)
+                                }
                             }
                         }
                     }
@@ -68,6 +73,11 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             .padding(.bottom)
+            .alert("Configuration Required", isPresented: $showConfigAlert) {
+                Button("OK") { }
+            } message: {
+                Text("Please select or create a JSON configuration file before connecting.")
+            }
             
             // Chat area with auto-scrolling
             ScrollViewReader { scrollView in
@@ -167,13 +177,17 @@ struct ContentView: View {
         }
         .padding()
         .onAppear {
-            // Start the client and server when the view appears
-            Task {
-                await viewModel.startClientServer(configPath: configFilePath.isEmpty ? nil : configFilePath)
-                // Focus the text field after a brief delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    isInputFocused = true
+            // Only start the client and server if we have a config file
+            if !configFilePath.isEmpty {
+                Task {
+                    await viewModel.startClientServer(configPath: configFilePath)
+                    // Focus the text field after a brief delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        isInputFocused = true
+                    }
                 }
+            } else {
+                viewModel.addInfoMessage("Please select a configuration file to connect.")
             }
         }
         .onDisappear {
@@ -212,11 +226,11 @@ struct ContentView: View {
                 // Save to UserDefaults
                 UserDefaults.standard.set(configFilePath, forKey: "savedConfigPath")
                 
-                // Create default config content
-                let defaultConfig = """
+                // Create a helpful template with examples
+                let templateConfig = """
                 {
                     "mcpServers": {
-                        "xcf": {
+                        "XCF_MCP_SERVER": {
                             "type": "stdio",
                             "command": "/usr/local/bin/xcf",
                             "args": [],
@@ -227,9 +241,11 @@ struct ContentView: View {
                 """
                 
                 do {
-                    try defaultConfig.write(to: url, atomically: true, encoding: .utf8)
+                    try templateConfig.write(to: url, atomically: true, encoding: .utf8)
                     // Show success message
                     viewModel.addInfoMessage("Created new config file at: \(url.path)")
+                    viewModel.addInfoMessage("IMPORTANT: Update the 'command' path to point to your xcf executable")
+                    viewModel.addInfoMessage("The server name must match MCP_SERVER_NAME in the code (XCF_MCP_SERVER)")
                 } catch {
                     // Show error message 
                     viewModel.addInfoMessage("Error creating config file: \(error.localizedDescription)")
