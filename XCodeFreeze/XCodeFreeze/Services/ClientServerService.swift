@@ -138,13 +138,19 @@ class ClientServerService {
         }
     }
     
+    // Message formatting is now handled by MessageFormatService
+    private let formatter = MessageFormatService.shared
+    private let logger = LoggingService.shared
+    
     // MARK: - Server Connection
     
     func startClientServer(configPath: String? = nil) async {
-        await messageHandler?.addMessage(content: "Starting XCodeFreeze Client Demo...", isFromServer: true)
+        logger.info("Starting XCodeFreeze Client Demo...")
+        await messageHandler?.addMessage(content: formatter.formatSystemMessage("Starting XCodeFreeze Client Demo..."), isFromServer: true)
         
         if let customPath = configPath, !customPath.isEmpty {
-            await messageHandler?.addMessage(content: "Using custom config file: \(customPath)", isFromServer: true)
+            logger.info("Using custom config file: \(customPath)")
+            await messageHandler?.addMessage(content: formatter.formatSystemMessage("Using custom config file: \(customPath)"), isFromServer: true)
         }
         
         await messageHandler?.updateStatus(.connecting)
@@ -181,8 +187,11 @@ class ClientServerService {
                         await self.initializeClient()
                     } catch {
                         print("Failed to connect client to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
-                        await self.messageHandler?.updateStatus(.error(message: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)"))
-                        await self.messageHandler?.addMessage(content: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)", isFromServer: true)
+                        
+                        let errorMsg = "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)"
+                        self.logger.error(errorMsg)
+                        await self.messageHandler?.updateStatus(.error(message: errorMsg))
+                        await self.messageHandler?.addMessage(content: self.formatter.formatErrorMessage(errorMsg), isFromServer: true)
                         
                         // Clean up server process
                         self.transportService.stopServer()
@@ -242,9 +251,8 @@ class ClientServerService {
             // List available tools
             let toolsResponse = try await client.listTools()
             
-            // Format tools for debug display using ToolJSON enum
-            var toolItems: [String] = []
-            for tool in toolsResponse.tools {
+            // Format tools for debug display using JSONFormatter
+            let toolsJson = JSONFormatter.formatArray(toolsResponse.tools) { tool in
                 // Try to extract schema if available
                 var schemaString: String? = nil
                 if let inputSchema = tool.inputSchema, 
@@ -252,7 +260,9 @@ class ClientServerService {
                     schemaString = objectValue.description
                     
                     // Attempt to extract parameter information from the schema
-                    await toolDiscoveryService.extractParametersFromSchema(toolName: tool.name, schema: inputSchema)
+                    Task {
+                        await self.toolDiscoveryService.extractParametersFromSchema(toolName: tool.name, schema: inputSchema)
+                    }
                 }
                 
                 let toolJSON = ToolJSON.tool(
@@ -260,11 +270,8 @@ class ClientServerService {
                     description: tool.description,
                     schema: schemaString
                 )
-                toolItems.append(toolJSON.toJSONString())
+                return toolJSON.toJSONString()
             }
-            
-            // Join all serialized items with commas
-            let toolsJson = toolsResponse.tools.isEmpty ? "[]" : "[\n" + toolItems.joined(separator: ",\n") + "\n]"
             
             // Add JSON-RPC debug response for tools
             await messageHandler?.addMessage(content: "[←] JSON-RPC Response: { \"tools\": \(toolsJson) }", isFromServer: true)
@@ -332,20 +339,21 @@ class ClientServerService {
         
         // For debugging, occasionally send the raw request for demonstration
         if Bool.random() { // Only do this occasionally to avoid duplication
+            // Use JSONFormatter to create a properly formatted JSON-RPC request
             let id = UUID().uuidString
-            let rawRequest = """
-            {
+            let requestObj: [String: Any] = [
                 "jsonrpc": "2.0",
-                "id": "\(id)",
+                "id": id,
                 "method": "callTool",
-                "params": {
-                    "name": "\(name)",
-                    "arguments": {
-                        "\(argumentName)": "\(argumentValue)"
-                    }
-                }
-            }
-            """
+                "params": [
+                    "name": name,
+                    "arguments": [
+                        argumentName: argumentValue
+                    ]
+                ]
+            ]
+            
+            let rawRequest = JSONFormatter.buildObject(requestObj)
             
             do {
                 try await transportService.sendRawMessage(rawRequest)
@@ -362,9 +370,8 @@ class ClientServerService {
                 arguments: [(argumentName): .string(argumentValue)]
             )
             
-            // Format content for debug display using ContentType enum
-            var contentItems: [String] = []
-            for item in content {
+            // Format content for debug display using JSONFormatter
+            let contentJson = JSONFormatter.formatArray(content) { item in
                 let contentType: ContentType
                 switch item {
                 case .text(let textContent):
@@ -378,11 +385,8 @@ class ClientServerService {
                 @unknown default:
                     contentType = .unknown()
                 }
-                contentItems.append(contentType.toJSONString())
+                return contentType.toJSONString()
             }
-            
-            // Join all serialized items with commas
-            let contentJson = content.isEmpty ? "[]" : "[\n" + contentItems.joined(separator: ",\n") + "\n]"
             
             // Add JSON-RPC debug response
             let responseJson = """

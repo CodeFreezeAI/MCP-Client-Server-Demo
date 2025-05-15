@@ -54,4 +54,6 @@ class HelperService {
             await uiService.clearAndFocusInput(text: textBinding, focusState: focusState)
         }
     }
-} 
+}
+
+// End of HelperService
