@@ -9,18 +9,12 @@ import SwiftUI
 
 /// Header component for the app's title
 struct HeaderView: View {
-    var title: String = MCPConstants.Client.name + " Demo"
+    let title: String
     
     var body: some View {
-        HStack {
-            Text(title)
-                .font(.headline)
-                .padding(.bottom, 5)
-            Spacer()
-        }
+        Text(title)
+            .font(.largeTitle)
+            .fontWeight(.bold)
+            .padding()
     }
-}
-
-#Preview {
-    HeaderView()
 }

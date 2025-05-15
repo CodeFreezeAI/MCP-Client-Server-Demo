@@ -24,7 +24,7 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HeaderView()
+            HeaderView(title: "XCodeFreeze Demo")
             
             // Config file selector and status indicator
             ConfigSelectorView(

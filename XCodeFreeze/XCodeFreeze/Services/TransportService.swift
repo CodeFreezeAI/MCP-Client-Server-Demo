@@ -15,11 +15,11 @@ enum TransportError: Swift.Error {
     var localizedDescription: String {
         switch self {
         case .serverNotConfigured(let message):
-            return "\(MCPConstants.Messages.Errors.serverNotConfigured): \(message)"
+            return "Server not configured: \(message)"
         case .unsupportedServerType(let type):
             return "Unsupported server type: \(type)"
         case .transportUnavailable:
-            return MCPConstants.Messages.Errors.transportUnavailable
+            return "Transport is not available"
         case .encodingError(let message):
             return "Encoding error: \(message)"
         case .otherError(let error):
@@ -39,11 +39,11 @@ class TransportService {
             // Load configuration from custom path
             let config = try MCPConfig.loadConfig(customPath: configPath)
             
-                    // Check if there's a server configured for the MCP server
-        guard let serverConfig = config.mcpServers[MCPConstants.Server.name] else {
-            completion(.failure(TransportError.serverNotConfigured("No server configuration found for \(MCPConstants.Server.name)")))
-            return
-        }
+            // Check if there's a server configured for MCP_SERVER_NAME
+            guard let serverConfig = config.mcpServers[MCP_SERVER_NAME] else {
+                completion(.failure(TransportError.serverNotConfigured("No server configuration found for \(MCP_SERVER_NAME)")))
+                return
+            }
             
             // Get the server type (default to stdio if not specified)
             let serverType = serverConfig.type ?? "stdio"
