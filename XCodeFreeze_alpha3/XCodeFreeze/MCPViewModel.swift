@@ -356,7 +356,7 @@ class MCPViewModel: ObservableObject {
         await addMessage(content: callToolJson, isFromServer: true)
         
         // For debugging, also send the raw request if transport is available
-        if let transport = self.transport {
+        if let _ = self.transport {
             let id = UUID().uuidString
             let rawRequest = """
             {
