@@ -82,19 +82,21 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
         }
     }
     
-    func updateStatus(_ status: String) async {
+    func updateStatus(_ status: ClientServerStatus) async {
         await MainActor.run {
-            statusMessage = status
+            statusMessage = status.description
             
-            // Update connection status based on the message
-            isConnected = !status.lowercased().contains("error") && 
-                          !status.lowercased().contains("disconnect")
-            
-            // Update subtools when connection status changes
-            if isConnected {
+            // Update connection status based on the status enum
+            switch status {
+            case .connected:
+                isConnected = true
                 updateServerSubtools()
-            } else {
+            case .disconnected, .error:
+                isConnected = false
                 serverSubtools = []
+            case .connecting:
+                // Keep previous connection state during reconnection attempts
+                break
             }
         }
     }

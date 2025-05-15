@@ -28,7 +28,7 @@ enum ClientServerStatus {
 // MARK: - Client Server Service Message Handler
 protocol ClientServerServiceMessageHandler: AnyObject {
     func addMessage(content: String, isFromServer: Bool) async
-    func updateStatus(_ status: String) async
+    func updateStatus(_ status: ClientServerStatus) async
     func updateTools(_ tools: [MCPTool]) async
 }
 
@@ -60,7 +60,7 @@ class ClientServerService {
             await messageHandler?.addMessage(content: "Using custom config file: \(customPath)", isFromServer: true)
         }
         
-        await messageHandler?.updateStatus("Connecting...")
+        await messageHandler?.updateStatus(.connecting)
         
         // Start server and get transport
         transportService.startServer(configPath: configPath ?? "") { [weak self] result in
@@ -69,7 +69,7 @@ class ClientServerService {
             Task {
                 switch result {
                 case .success(let (transport, _)):
-                    await self.messageHandler?.updateStatus("\(MCP_SERVER_NAME) Server started, connecting client...")
+                    await self.messageHandler?.updateStatus(.connecting)
                     await self.messageHandler?.addMessage(content: "Found \(MCP_SERVER_NAME) server configuration", isFromServer: true)
                     
                     // Create client with default version
@@ -94,7 +94,7 @@ class ClientServerService {
                         await self.initializeClient()
                     } catch {
                         print("Failed to connect client to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
-                        await self.messageHandler?.updateStatus("Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
+                        await self.messageHandler?.updateStatus(.error(message: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)"))
                         await self.messageHandler?.addMessage(content: "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)", isFromServer: true)
                         
                         // Clean up server process
@@ -103,7 +103,7 @@ class ClientServerService {
                     }
                     
                 case .failure(let error):
-                    await self.messageHandler?.updateStatus("Error: \(error.localizedDescription)")
+                    await self.messageHandler?.updateStatus(.error(message: error.localizedDescription))
                     await self.messageHandler?.addMessage(content: "Error: \(error.localizedDescription)", isFromServer: true)
                 }
             }
@@ -118,7 +118,7 @@ class ClientServerService {
         
         // Initialize connection
         guard let client = self.client else {
-            await messageHandler?.updateStatus("Error: Client was not created properly")
+            await messageHandler?.updateStatus(.error(message: "Client was not created properly"))
             await messageHandler?.addMessage(content: "Error: Failed to create client object", isFromServer: true)
             return
         }
@@ -146,7 +146,7 @@ class ClientServerService {
                 }
             }
             
-            await messageHandler?.updateStatus("Connected to: \(serverName) v\(serverVersion)")
+            await messageHandler?.updateStatus(.connected(serverName: serverName, version: serverVersion))
             await messageHandler?.addMessage(content: "Connected to server: \(serverName) v\(serverVersion)", isFromServer: true)
             
             // Add JSON-RPC debug message for listTools
@@ -212,7 +212,7 @@ class ClientServerService {
             }
             
         } catch {
-            await messageHandler?.updateStatus("Error during initialization: \(error.localizedDescription)")
+            await messageHandler?.updateStatus(.error(message: "Error during initialization: \(error.localizedDescription)"))
             await messageHandler?.addMessage(content: "Error during initialization: \(error.localizedDescription)", isFromServer: true)
         }
     }
@@ -370,7 +370,7 @@ class ClientServerService {
         // Stop the server via the service
         transportService.stopServer()
         
-        await messageHandler?.updateStatus("Disconnected")
+        await messageHandler?.updateStatus(.disconnected)
     }
     
     // MARK: - Diagnostic Methods
