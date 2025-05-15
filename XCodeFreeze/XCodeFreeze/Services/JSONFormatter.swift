@@ -25,7 +25,7 @@ public final class JSONFormatter {
             
             return String(data: data, encoding: .utf8) ?? "{}"
         } catch {
-            print("JSON encoding error: \(error)")
+            LoggingService.shared.error(String(format: MCPConstants.Messages.JSON.encodingError, String(describing: error)))
             return "{\"error\": \"Failed to encode object\"}"
         }
     }

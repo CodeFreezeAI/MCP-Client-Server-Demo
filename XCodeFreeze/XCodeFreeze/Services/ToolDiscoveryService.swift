@@ -143,16 +143,16 @@ class ToolDiscoveryService {
         
         if !serverActions.isEmpty {
             // Register server sub-tools
-            ToolRegistry.shared.registerSubTools(for: MCP_SERVER_NAME, subTools: serverActions)
+            ToolRegistry.shared.registerSubTools(for: MCPConstants.Server.name, subTools: serverActions)
             
             // Get the server's parameter name - never hardcode "action" or "text"
             var serverParamName: String? = nil
             
             // First try to get the parameter name from the server's schema
-            if let schema = ToolRegistry.shared.getToolSchema(for: MCP_SERVER_NAME), !schema.isEmpty {
+            if let schema = ToolRegistry.shared.getToolSchema(for: MCPConstants.Server.name), !schema.isEmpty {
                 if let firstParamName = schema.keys.first {
                     serverParamName = firstParamName
-                    print("Using server parameter name from schema: \(firstParamName)")
+                    LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.usingServerParameter, firstParamName))
                 }
             }
             
@@ -183,7 +183,7 @@ class ToolDiscoveryService {
                            let paramNameRange = Range(match.range(at: 1), in: description) {
                             
                             serverParamName = String(description[paramNameRange])
-                            print("Extracted parameter name from description using pattern: \(serverParamName!)")
+                            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.extractedParameterName, serverParamName!))
                             break
                         }
                     }
@@ -196,7 +196,7 @@ class ToolDiscoveryService {
                 // As absolute last resort, use a generic name
                 if serverParamName == nil {
                     serverParamName = "input"
-                    print("WARNING: Unable to determine parameter name, using generic 'input'")
+                    LoggingService.shared.warning(MCPConstants.Messages.ToolDiscovery.parameterNameWarning)
                 }
             }
             
@@ -204,10 +204,10 @@ class ToolDiscoveryService {
             let paramName = serverParamName!
             
             // Register this parameter for the server itself if not already registered
-            if ToolRegistry.shared.getToolSchema(for: MCP_SERVER_NAME) == nil {
+            if ToolRegistry.shared.getToolSchema(for: MCPConstants.Server.name) == nil {
                 let schema = [paramName: "string"]
-                ToolRegistry.shared.registerToolSchema(for: MCP_SERVER_NAME, schema: schema)
-                print("Registered schema for \(MCP_SERVER_NAME) with parameter: \(paramName)")
+                ToolRegistry.shared.registerToolSchema(for: MCPConstants.Server.name, schema: schema)
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.registeredSchema, MCPConstants.Server.name, paramName))
             }
             
             // Register parameter info for each action
@@ -222,10 +222,10 @@ class ToolDiscoveryService {
                 ToolRegistry.shared.registerParameterInfo(for: action, parameters: [paramInfo])
             }
         } else {
-            print("\n===== \(MCP_SERVER_NAME) ACTIONS ERROR =====")
-            print("Could not parse \(MCP_SERVER_NAME) actions from help text")
-            print(helpText)
-            print("==============================\n")
+            LoggingService.shared.error(String(format: MCPConstants.Messages.ToolDiscovery.actionsError, MCPConstants.Server.name))
+            LoggingService.shared.error(String(format: MCPConstants.Messages.ToolDiscovery.couldNotParse, MCPConstants.Server.name))
+            LoggingService.shared.error(helpText)
+            LoggingService.shared.error("==============================\n")
         }
     }
     
@@ -313,10 +313,10 @@ class ToolDiscoveryService {
         
         if !tools.isEmpty {
             // Check for server-related tools and try to extract their schema
-            if tools.contains(MCP_SERVER_NAME) || tools.contains(where: { $0.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME.lowercased())_") }) {
+            if tools.contains(MCPConstants.Server.name) || tools.contains(where: { $0.lowercased().hasPrefix("mcp_\(MCPConstants.Server.name.lowercased())_") }) {
                 // If we find a tool that matches the server name, examine its schema
                 for tool in tools {
-                    if tool == MCP_SERVER_NAME || tool.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME.lowercased())_") {
+                    if tool == MCPConstants.Server.name || tool.lowercased().hasPrefix("mcp_\(MCPConstants.Server.name.lowercased())_") {
                         // Try to extract param info if available in the description
                         if let description = toolDescriptions[tool],
                            description.contains("inputSchema") {
@@ -336,7 +336,7 @@ class ToolDiscoveryService {
                             let schema = [paramName: "string"]
                             ToolRegistry.shared.registerToolSchema(for: tool, schema: schema)
                             
-                            print("Extracted server parameter name from schema: \(paramName)")
+                            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.extractedServerParameterName, paramName))
                         }
                     }
                 }
@@ -354,10 +354,10 @@ class ToolDiscoveryService {
                 var paramName: String? = nil
                 
                 // For server-related tools, use the server's parameter name if available
-                if tool == MCP_SERVER_NAME || tool.lowercased().hasPrefix("mcp_\(MCP_SERVER_NAME.lowercased())_") {
+                if tool == MCPConstants.Server.name || tool.lowercased().hasPrefix("mcp_\(MCPConstants.Server.name.lowercased())_") {
                     // For server-related tools, try to determine the parameter name
                     // First check if the server itself has a schema
-                    if let serverSchema = ToolRegistry.shared.getToolSchema(for: MCP_SERVER_NAME),
+                    if let serverSchema = ToolRegistry.shared.getToolSchema(for: MCPConstants.Server.name),
                        let firstParam = serverSchema.keys.first {
                         paramName = firstParam
                     } 
@@ -390,7 +390,7 @@ class ToolDiscoveryService {
                                match.range(at: 1).location != NSNotFound,
                                let paramNameRange = Range(match.range(at: 1), in: description) {
                                 paramName = String(description[paramNameRange])
-                                print("Extracted parameter name '\(paramName!)' from tool description")
+                                LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.extractedParameterName, paramName!))
                                 break
                             }
                         }
@@ -399,7 +399,7 @@ class ToolDiscoveryService {
                     // If still no parameter name, use a generic one with warning
                     if paramName == nil {
                         paramName = "input"
-                        print("WARNING: Unable to determine parameter name for tool \(tool), using generic 'input'")
+                        LoggingService.shared.warning(String(format: MCPConstants.Messages.ToolDiscovery.parameterNameWarning, tool))
                     }
                 }
                 
@@ -417,7 +417,7 @@ class ToolDiscoveryService {
     
     // Parameter extraction from schemas
     func extractParametersFromSchema(toolName: String, schema: Value) async {
-        print("Examining schema for tool: \(toolName)")
+        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.examiningSchema, toolName))
         
         var foundParameters = false
         var parameterMap: [String: String] = [:]
@@ -426,7 +426,7 @@ class ToolDiscoveryService {
         var paramExamples: [String: String] = [:]
         
         // Debug - output raw schema for inspection
-        print("Raw schema for \(toolName): \(schema)")
+        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.rawSchema, toolName))
         
         // Try different schema formats to extract parameter info
         if let objectValue = schema.objectValue {
@@ -456,7 +456,7 @@ class ToolDiscoveryService {
                             paramExamples[key] = example
                         }
                         
-                        print("  Found direct parameter: \(key), Type: \(paramType)")
+                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundDirectParameter, key, paramType))
                         foundParameters = true
                     }
                 }
@@ -479,7 +479,7 @@ class ToolDiscoveryService {
                             paramExamples[paramName] = example
                         }
                         
-                        print("  Found parameter in properties: \(paramName), Type: \(paramType)")
+                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundParameterInProperties, paramName, paramType))
                         foundParameters = true
                     }
                 }
@@ -502,7 +502,7 @@ class ToolDiscoveryService {
                                 paramExamples[paramName] = example
                             }
                             
-                            print("  Found parameter in \(key): \(paramName), Type: \(paramType)")
+                            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundParameterIn, key, paramName, paramType))
                             foundParameters = true
                         }
                     }
@@ -522,7 +522,7 @@ class ToolDiscoveryService {
                                 paramDescriptions[paramName] = description
                             }
                             
-                            print("  Found array item property: \(propName), Type: array<\(propType)>")
+                            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundArrayItemProperty, propName, "array<\(propType)>"))
                             foundParameters = true
                         }
                     }
@@ -543,7 +543,7 @@ class ToolDiscoveryService {
                                         paramDescriptions[paramName] = description
                                     }
                                     
-                                    print("  Found \(schemaType) option property: \(propName), Type: \(propType)")
+                                    LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.found, schemaType, index, propName, propType))
                                     foundParameters = true
                                 }
                             }
@@ -564,12 +564,12 @@ class ToolDiscoveryService {
                                 for reqItem in requiredList {
                                     if let paramName = reqItem.stringValue {
                                         requiredParams.append(paramName)
-                                        print("  Found required parameter: \(paramName)")
+                                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundRequiredParameter, paramName))
                                     }
                                 }
                             } else if let paramName = itemArray[1].stringValue {
                                 requiredParams.append(paramName)
-                                print("  Found required parameter: \(paramName)")
+                                LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundRequiredParameter, paramName))
                             }
                         } else if let key = itemArray[0].stringValue, key == "properties" {
                             // This is a properties object
@@ -585,7 +585,7 @@ class ToolDiscoveryService {
                                                         let propType = propDefArray[1].stringValue {
                                                         
                                                         parameterMap[paramName] = propType
-                                                        print("  Found parameter in array properties: \(paramName), Type: \(propType)")
+                                                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundParameterInArrayProperties, paramName, propType))
                                                         foundParameters = true
                                                     }
                                                 }
@@ -603,7 +603,7 @@ class ToolDiscoveryService {
                                 for reqItem in reqArray {
                                     if let paramName = reqItem.stringValue {
                                         requiredParams.append(paramName)
-                                        print("  Found required parameter from string format: \(paramName)")
+                                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundRequiredParameterFromStringFormat, paramName))
                                     }
                                 }
                             }
@@ -617,7 +617,7 @@ class ToolDiscoveryService {
                                            let paramType = typeObj["type"]?.stringValue {
                                             
                                             parameterMap[paramName] = paramType
-                                            print("  Found parameter from string format: \(paramName), Type: \(paramType)")
+                                            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.foundParameterFromStringFormat, paramName, paramType))
                                             foundParameters = true
                                         }
                                     }
@@ -629,7 +629,7 @@ class ToolDiscoveryService {
             }
             
             // If we still don't have parameters, try parsing the description string
-            if !foundParameters && toolName.contains(MCP_SERVER_NAME) {
+            if !foundParameters && toolName.contains(MCPConstants.Server.name) {
                 let descriptionStr = schema.description
                 let schemaPattern = #"["'](\w+)["'](?:\s*:\s*["'](\w+)["'])?"#
                 
@@ -647,14 +647,14 @@ class ToolDiscoveryService {
                     }
                     
                     parameterMap[paramName] = paramType
-                    print("  Extracted parameter from description: \(paramName), Type: \(paramType)")
+                    LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.extractedParameterFromDescription, paramName, paramType))
                     foundParameters = true
                 }
             }
         }
         
         // If we still haven't found parameters and this is a server tool, examine more carefully
-        if !foundParameters && (toolName == MCP_SERVER_NAME || toolName.hasPrefix("mcp_\(MCP_SERVER_NAME)_")) {
+        if !foundParameters && (toolName == MCPConstants.Server.name || toolName.hasPrefix("mcp_\(MCPConstants.Server.name)_")) {
             // Check the schema string representation for mentions of parameter names
             let descriptionStr = schema.description
             
@@ -670,7 +670,7 @@ class ToolDiscoveryService {
                 
                 let extractedName = String(descriptionStr[paramNameRange])
                 parameterMap[extractedName] = "string"
-                print("  Extracted parameter '\(extractedName)' from schema JSON structure")
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.extractedParameterFromSchemaJSONStructure, extractedName))
                 foundParameters = true
             }
             
@@ -688,7 +688,7 @@ class ToolDiscoveryService {
                     let schemaKeywords = ["properties", "required", "type", "items", "oneOf", "anyOf", "allOf"]
                     if !schemaKeywords.contains(extractedName) {
                         parameterMap[extractedName] = "string"
-                        print("  Extracted parameter '\(extractedName)' from quoted name in schema")
+                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.extractedParameterFromQuotedNameInSchema, extractedName))
                         foundParameters = true
                     }
                 }
@@ -699,7 +699,7 @@ class ToolDiscoveryService {
             if !foundParameters {
                 // Use a generic parameter name as absolute last resort
                 parameterMap["input"] = "string"
-                print("  WARNING: Unable to extract parameter name from schema, using generic 'input'")
+                LoggingService.shared.warning(MCPConstants.Messages.ToolDiscovery.unableToExtractParameterNameFromSchemaWarning)
                 foundParameters = true
             }
         }
@@ -731,7 +731,7 @@ class ToolDiscoveryService {
                 ToolRegistry.shared.registerParameterInfo(for: toolName, parameters: paramInfoList)
             }
         } else if !foundParameters {
-            print("  No parameters found in schema for \(toolName)")
+            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.noParametersFound, toolName))
         }
     }
 } 
