@@ -14,11 +14,11 @@ enum ClientServerStatus {
     var description: String {
         switch self {
         case .disconnected:
-            return "Disconnected"
+            return MCPConstants.Messages.Info.disconnected
         case .connecting:
-            return "Connecting..."
+            return MCPConstants.Messages.Info.connecting
         case .connected(let serverName, let version):
-            return "Connected to: \(serverName) v\(version)"
+            return "\(MCPConstants.Messages.Info.connected): \(serverName) v\(version)"
         case .error(let message):
             return "Error: \(message)"
         }
