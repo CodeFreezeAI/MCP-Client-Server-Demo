@@ -61,12 +61,6 @@ class ConfigFileService {
                             "args": [],
                             "env": {}
                         },
-                        "filesystem": {
-                            "type": "stdio",
-                            "command": "npx",
-                            "args": ["@anthropic-ai/mcp-filesystem"],
-                            "env": {}
-                        }
                     }
                 }
                 """

@@ -25,6 +25,93 @@ enum ClientServerStatus {
     }
 }
 
+// MARK: - Content Type for JSON Serialization
+enum ContentType {
+    case text(value: String)
+    case image(data: String = "<binary data>")
+    case audio(data: String = "<binary data>")
+    case resource(uri: String)
+    case unknown(value: String = "<unknown content type>")
+    
+    func toJSONString(indentLevel: Int = 1) -> String {
+        let indent = String(repeating: "  ", count: indentLevel)
+        let result = """
+        \(indent){
+        \(indent)  "type": "\(typeString)",
+        \(indent)  \(valueField)
+        \(indent)}
+        """
+        return result
+    }
+    
+    private var typeString: String {
+        switch self {
+        case .text: return "text"
+        case .image: return "image"
+        case .audio: return "audio"
+        case .resource: return "resource"
+        case .unknown: return "unknown"
+        }
+    }
+    
+    private var valueField: String {
+        switch self {
+        case .text(let value):
+            return "\"value\": \"\(value)\""
+        case .image(let data):
+            return "\"data\": \"\(data)\""
+        case .audio(let data):
+            return "\"data\": \"\(data)\""
+        case .resource(let uri):
+            return "\"uri\": \"\(uri)\""
+        case .unknown(let value):
+            return "\"value\": \"\(value)\""
+        }
+    }
+}
+
+// MARK: - Tool JSON Serialization
+enum ToolJSON {
+    case tool(name: String, description: String, schema: String?)
+    
+    func toJSONString(indentLevel: Int = 1) -> String {
+        let indent = String(repeating: "  ", count: indentLevel)
+        var result = """
+        \(indent){
+        \(indent)  "name": "\(name)",
+        \(indent)  "description": "\(description)"
+        """
+        
+        if let schema = schema {
+            result += ",\n\(indent)  \"inputSchema\": \(schema)"
+        }
+        
+        result += "\n\(indent)}"
+        return result
+    }
+    
+    private var name: String {
+        switch self {
+        case .tool(let name, _, _):
+            return name
+        }
+    }
+    
+    private var description: String {
+        switch self {
+        case .tool(_, let description, _):
+            return description
+        }
+    }
+    
+    private var schema: String? {
+        switch self {
+        case .tool(_, _, let schema):
+            return schema
+        }
+    }
+}
+
 // MARK: - Client Server Service Message Handler
 protocol ClientServerServiceMessageHandler: AnyObject {
     func addMessage(content: String, isFromServer: Bool) async
@@ -155,31 +242,29 @@ class ClientServerService {
             // List available tools
             let toolsResponse = try await client.listTools()
             
-            // Format tools for debug display
-            var toolsJson = "[\n"
+            // Format tools for debug display using ToolJSON enum
+            var toolItems: [String] = []
             for tool in toolsResponse.tools {
-                toolsJson += "  {\n"
-                toolsJson += "    \"name\": \"\(tool.name)\",\n"
-                toolsJson += "    \"description\": \"\(tool.description)\"\n"
-                
-                // Try to extract and log inputSchema if available
-                if let inputSchema = tool.inputSchema {
-                    // For logging, attempt to convert the inputSchema to a human-readable string
-                    if let objectValue = inputSchema.objectValue {
-                        let schemaString = objectValue.description
-                        toolsJson += "    ,\"inputSchema\": \(schemaString)\n"
-                    }
+                // Try to extract schema if available
+                var schemaString: String? = nil
+                if let inputSchema = tool.inputSchema, 
+                   let objectValue = inputSchema.objectValue {
+                    schemaString = objectValue.description
                     
                     // Attempt to extract parameter information from the schema
                     await toolDiscoveryService.extractParametersFromSchema(toolName: tool.name, schema: inputSchema)
                 }
                 
-                toolsJson += "  },\n"
+                let toolJSON = ToolJSON.tool(
+                    name: tool.name,
+                    description: tool.description,
+                    schema: schemaString
+                )
+                toolItems.append(toolJSON.toJSONString())
             }
-            if !toolsResponse.tools.isEmpty {
-                toolsJson = String(toolsJson.dropLast(2))
-            }
-            toolsJson += "\n]"
+            
+            // Join all serialized items with commas
+            let toolsJson = toolsResponse.tools.isEmpty ? "[]" : "[\n" + toolItems.joined(separator: ",\n") + "\n]"
             
             // Add JSON-RPC debug response for tools
             await messageHandler?.addMessage(content: "[←] JSON-RPC Response: { \"tools\": \(toolsJson) }", isFromServer: true)
@@ -277,41 +362,27 @@ class ClientServerService {
                 arguments: [(argumentName): .string(argumentValue)]
             )
             
-            // Format content for debug display
-            var contentJson = "[\n"
+            // Format content for debug display using ContentType enum
+            var contentItems: [String] = []
             for item in content {
+                let contentType: ContentType
                 switch item {
                 case .text(let textContent):
-                    contentJson += "  {\n"
-                    contentJson += "    \"type\": \"text\",\n"
-                    contentJson += "    \"value\": \"\(textContent)\"\n"
-                    contentJson += "  },\n"
+                    contentType = .text(value: textContent)
                 case .image(data: _, mimeType: _, metadata: _):
-                    contentJson += "  {\n"
-                    contentJson += "    \"type\": \"image\",\n"
-                    contentJson += "    \"data\": \"<binary data>\"\n"
-                    contentJson += "  },\n"
+                    contentType = .image()
                 case .audio(data: _, mimeType: _):
-                    contentJson += "  {\n"
-                    contentJson += "    \"type\": \"audio\",\n"
-                    contentJson += "    \"data\": \"<binary data>\"\n"
-                    contentJson += "  },\n"
+                    contentType = .audio()
                 case .resource(uri: let uri, mimeType: _, text: _):
-                    contentJson += "  {\n"
-                    contentJson += "    \"type\": \"resource\",\n"
-                    contentJson += "    \"uri\": \"\(uri)\"\n"
-                    contentJson += "  },\n"
+                    contentType = .resource(uri: uri)
                 @unknown default:
-                    contentJson += "  {\n"
-                    contentJson += "    \"type\": \"unknown\",\n"
-                    contentJson += "    \"value\": \"<unknown content type>\"\n"
-                    contentJson += "  },\n"
+                    contentType = .unknown()
                 }
+                contentItems.append(contentType.toJSONString())
             }
-            if !content.isEmpty {
-                contentJson = String(contentJson.dropLast(2))
-            }
-            contentJson += "\n]"
+            
+            // Join all serialized items with commas
+            let contentJson = content.isEmpty ? "[]" : "[\n" + contentItems.joined(separator: ",\n") + "\n]"
             
             // Add JSON-RPC debug response
             let responseJson = """
