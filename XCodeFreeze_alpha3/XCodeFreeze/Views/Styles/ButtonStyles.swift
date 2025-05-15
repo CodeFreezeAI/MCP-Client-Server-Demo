@@ -19,14 +19,15 @@ struct ButtonStyles {
         
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
+                .font(.system(size: 13))
                 .padding(.horizontal, 10)
-                .padding(.vertical, 6)
+                .padding(.vertical, 5)
                 .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(isDisabled ? Color.gray.opacity(0.1) : (configuration.isPressed ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1)))
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(isDisabled ? Color.gray.opacity(0.05) : (configuration.isPressed ? Color.gray.opacity(0.1) : Color.gray.opacity(0.05)))
                         .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(Color.gray, lineWidth: 0.5)
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.gray.opacity(0.3), lineWidth: 0.5)
                         )
                 )
                 .foregroundColor(isDisabled ? .gray : .primary)
@@ -44,11 +45,12 @@ struct ButtonStyles {
         
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .font(.system(size: 13))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
                 .background(
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(isDisabled ? Color.blue.opacity(0.3) : (configuration.isPressed ? Color.blue.opacity(0.7) : Color.blue))
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(isDisabled ? Color.blue.opacity(0.3) : (configuration.isPressed ? Color.blue.opacity(0.7) : Color(red: 0.1, green: 0.4, blue: 0.9)))
                 )
                 .foregroundColor(.white)
                 .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
@@ -61,13 +63,20 @@ struct ButtonStyles {
         
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .font(.system(size: 13))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
                 .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? Color.blue.opacity(0.2) : (configuration.isPressed ? Color.gray.opacity(0.2) : Color.gray.opacity(0.1)))
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(isSelected 
+                              ? Color(red: 0.1, green: 0.4, blue: 0.9).opacity(0.15) 
+                              : (configuration.isPressed ? Color.gray.opacity(0.1) : Color.gray.opacity(0.05)))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(isSelected ? Color(red: 0.1, green: 0.4, blue: 0.9).opacity(0.4) : Color.gray.opacity(0.2), lineWidth: 0.5)
+                        )
                 )
-                .foregroundColor(isSelected ? .blue : .primary)
+                .foregroundColor(isSelected ? Color(red: 0.1, green: 0.4, blue: 0.9) : .primary)
                 .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
         }
     }

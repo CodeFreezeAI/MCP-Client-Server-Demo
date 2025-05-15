@@ -28,8 +28,8 @@ struct ChatView: View {
                 }
                 .padding()
             }
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(8)
+            .background(Color.gray.opacity(0.03))
+            .cornerRadius(6)
             .onChange(of: messages.count) { oldValue, newValue in
                 uiService.scrollToBottom(scrollView)
             }

@@ -19,6 +19,7 @@ struct InputBarView: View {
     var body: some View {
         HStack {
             TextField("Enter command...", text: $inputText)
+                .font(.system(size: 14))
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disabled(!isConnected)
                 .focused($isInputFocused)
@@ -54,7 +55,8 @@ struct InputBarView: View {
             
             DebugButtonsView(isConnected: isConnected, viewModel: viewModel)
         }
-        .padding()
+        .padding(.horizontal)
+        .padding(.vertical, 8)
     }
 }
 
@@ -64,7 +66,7 @@ struct DebugButtonsView: View {
     let viewModel: MCPViewModel
     
     var body: some View {
-        HStack {
+        HStack(spacing: 6) {
             Button("Debug") {
                 if isConnected {
                     Task {
@@ -87,5 +89,6 @@ struct DebugButtonsView: View {
             .disabled(!isConnected)
             .help("Check client and transport state")
         }
+        .font(.system(size: 12))
     }
 } 

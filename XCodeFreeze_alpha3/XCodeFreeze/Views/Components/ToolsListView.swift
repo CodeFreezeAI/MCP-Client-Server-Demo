@@ -16,17 +16,18 @@ struct ToolsListView: View {
     @FocusState var isInputFocused: Bool
     
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 4) {
             Text("Available Tools")
-                .font(.headline)
+                .font(.system(size: 13, weight: .medium))
                 .padding(.horizontal)
-                .padding(.top, 8)
+                .padding(.top, 6)
                 .textSelection(.enabled)
             
             Divider()
+                .padding(.horizontal)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 8) {
                     // Display main tools
                     ForEach(availableTools, id: \.name) { tool in
                         ToolButtonView(
@@ -52,14 +53,14 @@ struct ToolsListView: View {
                     }
                 }
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
             }
         }
-        .background(Color.gray.opacity(0.05))
-        .frame(height: 90)
-        .cornerRadius(8)
+        .background(Color.gray.opacity(0.03))
+        .frame(height: 82)
+        .cornerRadius(6)
         .padding(.horizontal)
-        .padding(.bottom)
+        .padding(.bottom, 8)
     }
 }
 
