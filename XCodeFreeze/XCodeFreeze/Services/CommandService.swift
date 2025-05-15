@@ -73,18 +73,18 @@ class CommandService {
             }
         }
         
-        // Check if the command is a known tool
-        if !isKnownCommand {
-            let isKnownTool = availableTools.contains(where: { $0.name == toolName })
-            
-            // If it's not a known tool and has multiple words, assume it's a server command
-            if !isKnownTool && components.count > 1 {
-                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.unrecognizedMultiwordCommand, originalInput, MCPConstants.Server.name))
-                toolName = MCPConstants.Server.name
-                toolArgs = originalInput
-                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.transformedAction, toolName, toolArgs))
-            }
-        }
+        // MARK: KNown Command offline Check if the command is a known tool
+//        if !isKnownCommand {
+//            let isKnownTool = availableTools.contains(where: { $0.name == toolName })
+//            
+//            // If it's not a known tool and has multiple words, assume it's a server command
+//            if !isKnownTool && components.count > 1 {
+//                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.unrecognizedMultiwordCommand, originalInput, MCPConstants.Server.name))
+//                toolName = MCPConstants.Server.name
+//                toolArgs = originalInput
+//                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.transformedAction, toolName, toolArgs))
+//            }
+//        }
         
         return (toolName, toolArgs)
     }

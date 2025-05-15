@@ -408,20 +408,20 @@ class ClientServerService {
                 if case .text(let responseText) = item {
                     await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.Info.serverResponse, responseText), isFromServer: true)
                     
-                    // If this was the help command or list tools command, update available tools
-                    if name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) || name == MCPConstants.Commands.help ||
-                       name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) || name == MCPConstants.Commands.list {
-                        // Process tool/help output to ensure subtools are updated immediately
-                        if name.contains(MCPConstants.Commands.help) {
-                            await toolDiscoveryService.processHelpOutput(responseText)
-                        } else if name.contains(MCPConstants.Commands.list) {
-                            await toolDiscoveryService.processToolList(responseText)
-                        }
-                       
-                        // Update available tools from registry after discovery
-                        let updatedTools = ToolRegistry.shared.getAvailableTools()
-                        await messageHandler?.updateTools(updatedTools)
-                    }
+                    //MARK: - Subtools offline If this was the help command or list tools command, update available tools
+//                    if name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) || name == MCPConstants.Commands.help ||
+//                       name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) || name == MCPConstants.Commands.list {
+//                        // Process tool/help output to ensure subtools are updated immediately
+//                        if name.contains(MCPConstants.Commands.help) {
+//                            await toolDiscoveryService.processHelpOutput(responseText)
+//                        } else if name.contains(MCPConstants.Commands.list) {
+//                            await toolDiscoveryService.processToolList(responseText)
+//                        }
+//                       
+//                        // Update available tools from registry after discovery
+//                        let updatedTools = ToolRegistry.shared.getAvailableTools()
+//                        await messageHandler?.updateTools(updatedTools)
+//                    }
                     
                     return
                 }
