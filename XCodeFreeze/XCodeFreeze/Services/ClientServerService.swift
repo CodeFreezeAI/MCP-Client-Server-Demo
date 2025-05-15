@@ -169,24 +169,24 @@ class ClientServerService {
                     let originalClient = Client(name: MCP_CLIENT_NAME, version: MCP_CLIENT_DEFAULT_VERSION)
                     self.client = originalClient
                     
-                    print("Attempting to connect client to \(MCP_SERVER_NAME) server")
+                    LoggingService.shared.info(String(format: MCPConstants.Messages.ClientServer.attemptingToConnect, MCPConstants.Server.name))
                     
                     // Connect the transport first
                     do {
                         try await transport.connect()
-                        print("Transport connected successfully")
+                        LoggingService.shared.info(MCPConstants.Messages.ClientServer.transportConnected)
                         
                         // Test the transport connection with a ping message
                         let _ = try await self.transportService.testTransport()
                         
                         // Now connect the client using the transport
                         try await self.client?.connect(transport: transport)
-                        print("Client successfully connected to \(MCP_SERVER_NAME) server")
+                        LoggingService.shared.info(String(format: MCPConstants.Messages.ClientServer.clientConnected, MCPConstants.Server.name))
                         
                         // Initialize connection
                         await self.initializeClient()
                     } catch {
-                        print("Failed to connect client to \(MCP_SERVER_NAME) server: \(error.localizedDescription)")
+                        LoggingService.shared.error(String(format: MCPConstants.Messages.ClientServer.connectionFailed, MCPConstants.Server.name, error.localizedDescription))
                         
                         let errorMsg = "Error connecting to \(MCP_SERVER_NAME) server: \(error.localizedDescription)"
                         self.logger.error(errorMsg)
@@ -233,17 +233,17 @@ class ClientServerService {
             // This ensures we use the actual server name rather than the configured one
             if !serverName.isEmpty {
                 // Special case for NPX filesystem server
-                if serverName.lowercased() == "filesystem" && MCP_SERVER_NAME.lowercased() != "filesystem" {
-                    await messageHandler?.addMessage(content: "Connected to NPX Filesystem server. Note: Using configured name '\(MCP_SERVER_NAME)' for server commands.", isFromServer: true)
+                if serverName.lowercased() == "filesystem" && MCPConstants.Server.name.lowercased() != "filesystem" {
+                    await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.ClientServer.connectedToNPXFilesystem, MCPConstants.Server.name), isFromServer: true)
                     // Don't update the server name in this case to maintain compatibility
                 } else {
-                    MCP_SERVER_NAME = serverName
-                    print("Setting MCP_SERVER_NAME to: \(serverName) (from server response)")
+                    MCPConstants.Server.name = serverName
+                    LoggingService.shared.info(String(format: MCPConstants.Messages.ClientServer.settingServerName, serverName))
                 }
             }
             
             await messageHandler?.updateStatus(.connected(serverName: serverName, version: serverVersion))
-            await messageHandler?.addMessage(content: "Connected to server: \(serverName) v\(serverVersion)", isFromServer: true)
+            await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.Info.connectedToServer, serverName, serverVersion), isFromServer: true)
             
             // Add JSON-RPC debug message for listTools
             await messageHandler?.addMessage(content: "[→] JSON-RPC: listTools()", isFromServer: true)
@@ -300,12 +300,12 @@ class ClientServerService {
             if let serverActions = ToolRegistry.shared.getSubTools(for: MCP_SERVER_NAME), !serverActions.isEmpty {
                 // Get the parameter name from the server's schema instead of hardcoding "action"
                 let paramName = ToolRegistry.shared.getParameterName(for: MCP_SERVER_NAME)
-                await messageHandler?.addMessage(content: "You can use \(MCP_SERVER_NAME) actions by typing \(MCP_SERVER_NAME) <\(paramName)> or just the \(paramName) name directly.", isFromServer: true)
+                await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.ClientServer.availableServerActions, MCPConstants.Server.name, MCPConstants.Server.name, paramName, paramName), isFromServer: true)
             }
             
         } catch {
-            await messageHandler?.updateStatus(.error(message: "Error during initialization: \(error.localizedDescription)"))
-            await messageHandler?.addMessage(content: "Error during initialization: \(error.localizedDescription)", isFromServer: true)
+            await messageHandler?.updateStatus(.error(message: String(format: MCPConstants.Messages.Errors.initializationError, error.localizedDescription)))
+            await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.Errors.initializationError, error.localizedDescription), isFromServer: true)
         }
     }
     
@@ -317,7 +317,7 @@ class ClientServerService {
         await messageHandler?.addMessage(content: displayText, isFromServer: false)
         
         guard let client = client, isConnected else {
-            await messageHandler?.addMessage(content: "Error: Client not connected", isFromServer: true)
+            await messageHandler?.addMessage(content: MCPConstants.Messages.Errors.clientNotConnected, isFromServer: true)
             return
         }
         
@@ -358,7 +358,7 @@ class ClientServerService {
             do {
                 try await transportService.sendRawMessage(rawRequest)
             } catch {
-                print("Failed to send raw debug message: \(error.localizedDescription)")
+                LoggingService.shared.error(String(format: MCPConstants.Messages.ClientServer.sendRawMsgFailed, error.localizedDescription))
                 // Continue execution - this is just a debug feature
             }
         }
@@ -399,22 +399,22 @@ class ClientServerService {
             
             // Process response
             if isError == true {
-                await messageHandler?.addMessage(content: "Error from server", isFromServer: true)
+                await messageHandler?.addMessage(content: MCPConstants.Messages.Errors.errorFromServer, isFromServer: true)
                 return
             }
             
             // Extract text response
             for item in content {
                 if case .text(let responseText) = item {
-                    await messageHandler?.addMessage(content: "Result: \(responseText)", isFromServer: true)
+                    await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.Info.serverResponse, responseText), isFromServer: true)
                     
                     // If this was the help command or list tools command, update available tools
-                    if name == "mcp_\(MCP_SERVER_NAME)_help" || name == "help" ||
-                       name == "mcp_\(MCP_SERVER_NAME)_list" || name == "list" {
+                    if name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) || name == MCPConstants.Commands.help ||
+                       name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) || name == MCPConstants.Commands.list {
                         // Process tool/help output to ensure subtools are updated immediately
-                        if name.contains("help") {
+                        if name.contains(MCPConstants.Commands.help) {
                             await toolDiscoveryService.processHelpOutput(responseText)
-                        } else if name.contains("list") {
+                        } else if name.contains(MCPConstants.Commands.list) {
                             await toolDiscoveryService.processToolList(responseText)
                         }
                        
@@ -485,7 +485,7 @@ class ClientServerService {
     // Debug feature to send an echo request-response to test communication
     func startDebugMessageTest() async {
         guard let client = client, isConnected else {
-            await messageHandler?.addMessage(content: "Error: Client not connected", isFromServer: true)
+            await messageHandler?.addMessage(content: MCPConstants.Messages.Errors.clientNotConnected, isFromServer: true)
             return
         }
         

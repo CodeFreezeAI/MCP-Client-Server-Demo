@@ -24,11 +24,11 @@ class CommandService {
         let originalInput = inputText
         
         // Special handling for "use [server]" which is a common command
-        if originalInput.lowercased() == "use \(MCP_SERVER_NAME)" {
-            print("Detected special 'use \(MCP_SERVER_NAME)' command")
-            let toolName = MCP_SERVER_NAME
-            let toolArgs = "use \(MCP_SERVER_NAME)"
-            print("Transformed to: \(MCP_SERVER_NAME) action='use \(MCP_SERVER_NAME)'")
+        if originalInput.lowercased() == "use \(MCPConstants.Server.name)" {
+            LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.detectedSpecialCommand, MCPConstants.Server.name))
+            let toolName = MCPConstants.Server.name
+            let toolArgs = "use \(MCPConstants.Server.name)"
+            LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.transformedSpecialCommand, MCPConstants.Server.name, MCPConstants.Server.name))
             return (toolName, toolArgs)
         }
         
@@ -41,19 +41,19 @@ class CommandService {
         var isKnownCommand = false
         
         // Special handling for server sub-tools
-        if let serverActions = ToolRegistry.shared.getSubTools(for: MCP_SERVER_NAME) {
+        if let serverActions = ToolRegistry.shared.getSubTools(for: MCPConstants.Server.name) {
             // Case 1: Direct server command like "xcf help"
-            if toolName.lowercased() == MCP_SERVER_NAME {
+            if toolName.lowercased() == MCPConstants.Server.name.lowercased() {
                 // Already properly formatted, no need to change
-                print("Direct \(MCP_SERVER_NAME) command: \(toolName) action=\(toolArgs)")
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.directCommand, MCPConstants.Server.name, toolName, toolArgs))
                 isKnownCommand = true
             }
             // Case 2: First token is a server action like "help" or "grant"
             else if serverActions.contains(where: { $0.lowercased() == toolName.lowercased() }) {
-                print("Detected direct \(MCP_SERVER_NAME) action: \(toolName) with args: \(toolArgs)")
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.detectedDirectAction, MCPConstants.Server.name, toolName, toolArgs))
                 toolArgs = toolArgs.isEmpty ? toolName : "\(toolName) \(toolArgs)"
-                toolName = MCP_SERVER_NAME
-                print("Transformed to: \(toolName) action=\(toolArgs)")
+                toolName = MCPConstants.Server.name
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.transformedAction, toolName, toolArgs))
                 isKnownCommand = true
             }
             // Case 3: Handle special cases
@@ -62,10 +62,10 @@ class CommandService {
                 for action in serverActions {
                     if toolName.lowercased() == action.lowercased() && !toolArgs.isEmpty {
                         // This is a multi-word server command - the first word is a server action
-                        print("Detected multi-word \(MCP_SERVER_NAME) command starting with \(action): \(originalInput)")
+                        LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.detectedMultiwordCommand, MCPConstants.Server.name, action, originalInput))
                         toolArgs = originalInput // Pass the entire command as the action
-                        toolName = MCP_SERVER_NAME
-                        print("Transformed to: \(toolName) action=\(toolArgs)")
+                        toolName = MCPConstants.Server.name
+                        LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.transformedAction, toolName, toolArgs))
                         isKnownCommand = true
                         break
                     }
@@ -79,10 +79,10 @@ class CommandService {
             
             // If it's not a known tool and has multiple words, assume it's a server command
             if !isKnownTool && components.count > 1 {
-                print("Unrecognized multi-word command: \(originalInput). Treating as \(MCP_SERVER_NAME) command.")
-                toolName = MCP_SERVER_NAME
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.unrecognizedMultiwordCommand, originalInput, MCPConstants.Server.name))
+                toolName = MCPConstants.Server.name
                 toolArgs = originalInput
-                print("Transformed to: \(toolName) action=\(toolArgs)")
+                LoggingService.shared.debug(String(format: MCPConstants.Messages.Command.transformedAction, toolName, toolArgs))
             }
         }
         

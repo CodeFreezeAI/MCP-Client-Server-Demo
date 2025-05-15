@@ -12,21 +12,21 @@ private func getUserHomeDirectory() -> String {
     return FileManager.default.homeDirectoryForCurrentUser.path
 }
 
-// MARK: - Function to load MCP_SERVER_NAME from config (used as fallback)
-func loadMCPServerNameFromConfig(customPath: String? = nil) {
+// MARK: - Function to load server name from config (used as fallback)
+func loadServerNameFromConfig(customPath: String? = nil) {
     do {
         let config = try MCPConfig.loadConfig(customPath: customPath)
         
         // If we have servers in the config, use the first one as the default/fallback
         if !config.mcpServers.isEmpty {
             if let firstServerName = config.mcpServers.keys.first {
-                MCP_SERVER_NAME = firstServerName
-                print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
+                MCPConstants.Server.name = firstServerName
+                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.settingInitialServerName, firstServerName))
             }
         }
     } catch {
-        print("Could not load MCP_SERVER_NAME from config: \(error.localizedDescription)")
-        print("Using default MCP_SERVER_NAME: \(MCP_SERVER_NAME) - will attempt to update with actual server name during connection")
+        LoggingService.shared.error(String(format: MCPConstants.Messages.ServerConfig.couldNotLoadServerName, error.localizedDescription))
+        LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.usingDefaultServerName, MCPConstants.Server.name))
     }
 }
 
@@ -57,36 +57,22 @@ struct MCPConfig: Codable {
         }
     }
     
+    // MARK: - Load Config
+    
     static func loadConfig(customPath: String? = nil) throws -> MCPConfig {
-        // If a custom path is provided, use it
-        if let customPath = customPath, !customPath.isEmpty {
-            print("Attempting to load MCP config from custom path: \(customPath)")
+        // First, try custom path if provided
+        if let customPath = customPath {
+            LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.loadingCustomConfig, customPath))
             
-            let fileManager = FileManager.default
-            if fileManager.fileExists(atPath: customPath) {
-                let data = try Data(contentsOf: URL(fileURLWithPath: customPath))
-                print("Config file loaded from custom path, size: \(data.count) bytes")
+            let customURL = URL(fileURLWithPath: customPath)
+            
+            if FileManager.default.fileExists(atPath: customPath) {
+                let data = try Data(contentsOf: customURL)
+                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.configFileLoaded, data.count))
                 
-                // First validate JSON structure
+                // Basic validation to ensure it's valid JSON
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                    
-                    // Check if mcpServers key exists
-                    guard let mcpServers = json?["mcpServers"] as? [String: Any], !mcpServers.isEmpty else {
-                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Config file is missing or has empty 'mcpServers' section. Please add server configuration."])
-                    }
-                    
-                    // Check at least one server configuration
-                    let serverKeys = mcpServers.keys
-                    print("Found servers in config: \(serverKeys.joined(separator: ", "))")
-                    
-                    // Check that servers have required fields
-                    for (serverName, serverConfig) in mcpServers {
-                        guard let serverDict = serverConfig as? [String: Any],
-                              let _ = serverDict["command"] as? String else {
-                            throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Server '\(serverName)' is missing required 'command' field."])
-                        }
-                    }
+                    _ = try JSONSerialization.jsonObject(with: data, options: [])
                 } catch let validationError as NSError {
                     if validationError.domain == "MCPConfig" {
                         throw validationError
@@ -99,78 +85,65 @@ struct MCPConfig: Codable {
                 let decoder = JSONDecoder()
                 let config = try decoder.decode(MCPConfig.self, from: data)
                 
-                // Set initial MCP_SERVER_NAME from config
+                // Log found servers
+                let serverKeys = Array(config.mcpServers.keys)
+                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.foundServersInConfig, serverKeys.joined(separator: ", ")))
+                
+                // Set initial server name from config
                 if !config.mcpServers.isEmpty {
                     if let firstServerName = config.mcpServers.keys.first {
-                        MCP_SERVER_NAME = firstServerName
-                        print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
+                        MCPConstants.Server.name = firstServerName
+                        LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.settingInitialServerName, firstServerName))
                     }
                 }
                 
                 return config
             } else {
-                print("Custom config file does not exist at path: \(customPath)")
+                LoggingService.shared.warning(String(format: MCPConstants.Messages.ServerConfig.customConfigNotExist, customPath))
                 throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "Specified config file does not exist: \(customPath)"])
             }
         }
         
         // Try the path from UserDefaults if available
-        if let savedPath = UserDefaults.standard.string(forKey: "savedConfigPath"), !savedPath.isEmpty {
-            print("Checking saved config path from UserDefaults: \(savedPath)")
+        if let savedPath = UserDefaults.standard.string(forKey: "mcpConfigPath") {
+            LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.checkingSavedConfig, savedPath))
             
-            let fileManager = FileManager.default
-            if fileManager.fileExists(atPath: savedPath) {
-                let data = try Data(contentsOf: URL(fileURLWithPath: savedPath))
-                print("Config file loaded from saved path, size: \(data.count) bytes")
+            let savedURL = URL(fileURLWithPath: savedPath)
+            
+            if FileManager.default.fileExists(atPath: savedPath) {
+                let data = try Data(contentsOf: savedURL)
+                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.savedConfigLoaded, data.count))
                 
-                // Validate JSON structure
+                // Basic validation to ensure it's valid JSON
                 do {
-                    let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                    
-                    // Check if mcpServers key exists
-                    guard let mcpServers = json?["mcpServers"] as? [String: Any], !mcpServers.isEmpty else {
-                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Config file is missing or has empty 'mcpServers' section. Please add server configuration."])
-                    }
-                    
-                    // Check at least one server configuration
-                    let serverKeys = mcpServers.keys
-                    print("Found servers in config: \(serverKeys.joined(separator: ", "))")
-                    
-                    // Check that servers have required fields
-                    for (serverName, serverConfig) in mcpServers {
-                        guard let serverDict = serverConfig as? [String: Any],
-                              let _ = serverDict["command"] as? String else {
-                            throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Server '\(serverName)' is missing required 'command' field."])
-                        }
-                    }
-                } catch let validationError as NSError {
-                    if validationError.domain == "MCPConfig" {
-                        throw validationError
-                    } else {
-                        throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format: \(validationError.localizedDescription)"])
-                    }
+                    _ = try JSONSerialization.jsonObject(with: data, options: [])
+                } catch {
+                    throw NSError(domain: "MCPConfig", code: 400, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format in saved config: \(error.localizedDescription)"])
                 }
                 
                 // If validation passes, decode normally
                 let decoder = JSONDecoder()
                 let config = try decoder.decode(MCPConfig.self, from: data)
                 
-                // Set initial MCP_SERVER_NAME from config
+                // Log found servers
+                let serverKeys = Array(config.mcpServers.keys)
+                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.foundServersInConfig, serverKeys.joined(separator: ", ")))
+                
+                // Set initial server name from config
                 if !config.mcpServers.isEmpty {
                     if let firstServerName = config.mcpServers.keys.first {
-                        MCP_SERVER_NAME = firstServerName
-                        print("Setting initial MCP_SERVER_NAME to: \(firstServerName) (from config - will be updated with actual server name later)")
+                        MCPConstants.Server.name = firstServerName
+                        LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.settingInitialServerName, firstServerName))
                     }
                 }
                 
                 return config
             } else {
-                print("Saved config file does not exist at path: \(savedPath)")
-                throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "Saved config file no longer exists: \(savedPath)"])
+                LoggingService.shared.warning(String(format: MCPConstants.Messages.ServerConfig.savedConfigNotExist, savedPath))
             }
         }
         
-        // If we get here, no config file was found
-        throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "No configuration file selected. Please select or create a configuration file."])
+        // Default to using an empty config
+        return MCPConfig(mcpServers: [:])
     }
 } 

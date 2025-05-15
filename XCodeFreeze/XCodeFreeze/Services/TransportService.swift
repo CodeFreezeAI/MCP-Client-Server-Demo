@@ -15,11 +15,11 @@ enum TransportError: Swift.Error {
     var localizedDescription: String {
         switch self {
         case .serverNotConfigured(let message):
-            return "Server not configured: \(message)"
+            return "\(MCPConstants.Messages.Errors.serverNotConfigured): \(message)"
         case .unsupportedServerType(let type):
             return "Unsupported server type: \(type)"
         case .transportUnavailable:
-            return "Transport is not available"
+            return MCPConstants.Messages.Errors.transportUnavailable
         case .encodingError(let message):
             return "Encoding error: \(message)"
         case .otherError(let error):
@@ -39,9 +39,9 @@ class TransportService {
             // Load configuration from custom path
             let config = try MCPConfig.loadConfig(customPath: configPath)
             
-            // Check if there's a server configured for MCP_SERVER_NAME
-            guard let serverConfig = config.mcpServers[MCP_SERVER_NAME] else {
-                completion(.failure(TransportError.serverNotConfigured("No server configuration found for \(MCP_SERVER_NAME)")))
+            // Check if there's a server configured for the MCP server
+            guard let serverConfig = config.mcpServers[MCPConstants.Server.name] else {
+                completion(.failure(TransportError.serverNotConfigured("No server configuration found for \(MCPConstants.Server.name)")))
                 return
             }
             
@@ -63,9 +63,9 @@ class TransportService {
                 arguments = configArgs
             }
             
-            print("Will use \(MCP_SERVER_NAME) server from config: \(executablePath)")
+            LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.willUseServer, MCPConstants.Server.name, executablePath))
             if !arguments.isEmpty {
-                print("With arguments: \(arguments.joined(separator: " "))")
+                LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.withArguments, arguments.joined(separator: " ")))
             }
             
             // Launch MCP server process
@@ -98,13 +98,13 @@ class TransportService {
                 let errorHandle = serverError.fileHandleForReading
                 let errorData = errorHandle.readDataToEndOfFile()
                 if !errorData.isEmpty, let errorString = String(data: errorData, encoding: .utf8) {
-                    print("\(MCP_SERVER_NAME) Server stderr: \(errorString)")
+                    LoggingService.shared.warning(String(format: MCPConstants.Messages.Transport.serverStderr, MCPConstants.Server.name, errorString))
                 }
             }
             
             // Start MCP server
             try process.run()
-            print("\(MCP_SERVER_NAME) Server process started with PID: \(process.processIdentifier)")
+            LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.serverProcessStarted, MCPConstants.Server.name, process.processIdentifier))
             self.serverProcess = process
             
             // Create FileDescriptors for transport from the pipes
@@ -140,14 +140,14 @@ class TransportService {
         
         // Test with a simple ping message
         let pingMessage = "{\"jsonrpc\": \"2.0\", \"method\": \"ping\", \"id\": \"transport-test\"}"
-        print("Sending transport test message: \(pingMessage)")
+        LoggingService.shared.debug(String(format: MCPConstants.Messages.Transport.sendingTestMessage, pingMessage))
         
         guard let pingData = pingMessage.data(using: .utf8) else {
             throw TransportError.encodingError("Failed to encode ping message")
         }
         
         try await transport.send(pingData)
-        print("Transport test message sent successfully")
+        LoggingService.shared.info(MCPConstants.Messages.Transport.testMessageSent)
         
         return true
     }
@@ -162,8 +162,8 @@ class TransportService {
             throw TransportError.encodingError("Failed to encode message")
         }
         
-        print("Sending raw message: \(message)")
+        LoggingService.shared.debug(String(format: MCPConstants.Messages.Transport.sendingRawMessage, message))
         try await transport.send(data)
-        print("Raw message sent successfully")
+        LoggingService.shared.debug(MCPConstants.Messages.Transport.rawMessageSent)
     }
 } 

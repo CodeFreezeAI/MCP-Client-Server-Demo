@@ -24,24 +24,24 @@ class ToolDiscoveryService {
         await discoverParametersFromToolSchemas()
         
         // Then, get help info to discover server actions
-        if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == "help" || $0.name == "mcp_\(MCP_SERVER_NAME)_help" }) {
+        if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.help || $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) }) {
             
             // Try with mcp_xcf_help first, then fall back to help
-            if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == "mcp_\(MCP_SERVER_NAME)_help" }) {
-                _ = await callTool(name: "mcp_\(MCP_SERVER_NAME)_help", text: "")
-            } else if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == "help" }) {
-                _ = await callTool(name: "help", text: "")
+            if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) }) {
+                _ = await callTool(name: MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help), text: "")
+            } else if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.help }) {
+                _ = await callTool(name: MCPConstants.Commands.help, text: "")
             }
         }
         
         // Finally, query for tool list to understand available tools
-        if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == "list" || $0.name == "mcp_\(MCP_SERVER_NAME)_list" }) {
+        if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.list || $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) }) {
             
             // Try with mcp_xcf_list first, then fall back to list
-            if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == "mcp_\(MCP_SERVER_NAME)_list" }) {
-                _ = await callTool(name: "mcp_\(MCP_SERVER_NAME)_list", text: "")
-            } else if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == "list" }) {
-                _ = await callTool(name: "list", text: "")
+            if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) }) {
+                _ = await callTool(name: MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list), text: "")
+            } else if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.list }) {
+                _ = await callTool(name: MCPConstants.Commands.list, text: "")
             }
         }
     }
@@ -83,9 +83,9 @@ class ToolDiscoveryService {
             for item in content {
                 if case .text(let responseText) = item {
                     // If this was the help command or list tools command, try to extract tool info
-                    if name == "mcp_\(MCP_SERVER_NAME)_help" || name == "help" {
+                    if name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) || name == MCPConstants.Commands.help {
                         await processHelpOutput(responseText)
-                    } else if name == "mcp_\(MCP_SERVER_NAME)_list" || name == "list" {
+                    } else if name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) || name == MCPConstants.Commands.list {
                         await processToolList(responseText)
                     }
                     
