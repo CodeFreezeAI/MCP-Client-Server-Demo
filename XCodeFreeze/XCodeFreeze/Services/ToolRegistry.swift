@@ -17,6 +17,8 @@ struct ToolParameterInfo {
 class ToolRegistry {
     static let shared = ToolRegistry()
     
+    private let concurrentQueue = DispatchQueue(label: "com.mcp.toolregistry.queue", attributes: .concurrent)
+    
     private var availableTools: [MCPTool] = []
     private var subTools: [String: [String]] = [:]
     private var schemaMap: [String: [String: String]] = [:]
@@ -29,102 +31,156 @@ class ToolRegistry {
     // MARK: - Tool Registration
     
     func registerTools(_ tools: [MCPTool]) {
-        availableTools = tools
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.availableTools = tools
+        }
     }
     
     func getAvailableTools() -> [MCPTool] {
-        return availableTools
+        var result: [MCPTool] = []
+        concurrentQueue.sync {
+            result = self.availableTools
+        }
+        return result
     }
     
     // MARK: - Sub-tool Registration
     
     func registerSubTools(for server: String, subTools: [String]) {
-        self.subTools[server] = subTools
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.subTools[server] = subTools
+        }
     }
     
     func getSubTools(for server: String) -> [String]? {
-        return subTools[server]
+        var result: [String]?
+        concurrentQueue.sync {
+            result = self.subTools[server]
+        }
+        return result
     }
     
     // MARK: - Schema Registration
     
     func registerToolSchema(for tool: String, schema: [String: String]) {
-        schemaMap[tool] = schema
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.schemaMap[tool] = schema
+        }
     }
     
     func getToolSchema(for tool: String) -> [String: String]? {
-        schemaMap[tool]
+        var result: [String: String]?
+        concurrentQueue.sync {
+            result = self.schemaMap[tool]
+        }
+        return result
     }
     
     func hasDiscoveredSchema(for tool: String) -> Bool {
-        schemaMap[tool] != nil
+        var result = false
+        concurrentQueue.sync {
+            result = self.schemaMap[tool] != nil
+        }
+        return result
     }
     
     // MARK: - Parameter Info Registration
     
     func registerParameterInfo(for tool: String, parameters: [ToolParameterInfo]) {
-        parameterInfoMap[tool] = parameters
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.parameterInfoMap[tool] = parameters
+        }
     }
     
     func getParameterInfo(for tool: String) -> [ToolParameterInfo]? {
-        return parameterInfoMap[tool]
+        var result: [ToolParameterInfo]?
+        concurrentQueue.sync {
+            result = self.parameterInfoMap[tool]
+        }
+        return result
     }
     
     func registerToolParameterDescriptions(for tool: String, descriptions: [String: String]) {
-        parameterDescriptions[tool] = descriptions
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.parameterDescriptions[tool] = descriptions
+        }
     }
     
     func getParameterDescription(for tool: String, paramName: String) -> String? {
-        parameterDescriptions[tool]?[paramName]
+        var result: String?
+        concurrentQueue.sync {
+            result = self.parameterDescriptions[tool]?[paramName]
+        }
+        return result
     }
     
     func registerToolParameterExamples(for tool: String, examples: [String: String]) {
-        parameterExamples[tool] = examples
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.parameterExamples[tool] = examples
+        }
     }
     
     func getParameterExample(for tool: String, paramName: String) -> String? {
-        parameterExamples[tool]?[paramName]
+        var result: String?
+        concurrentQueue.sync {
+            result = self.parameterExamples[tool]?[paramName]
+        }
+        return result
     }
     
     // MARK: - Parameter Name Resolution
     
     func getParameterName(for tool: String) -> String {
-        // First check if we have explicit parameter info for this tool
-        if let params = parameterInfoMap[tool], let first = params.first {
-            return first.name
-        }
+        var result = "text" // Default fallback
         
-        // Next, check if we have schema info for this tool
-        if let schema = schemaMap[tool], let first = schema.keys.first {
-            return first
-        }
-        
-        // If tool is a server action, use the parameter name for the server
-        for (server, actions) in subTools {
-            if actions.contains(tool) {
-                if let serverSchema = schemaMap[server], let first = serverSchema.keys.first {
-                    return first
+        concurrentQueue.sync {
+            // First check if we have explicit parameter info for this tool
+            if let params = self.parameterInfoMap[tool], let first = params.first {
+                result = first.name
+                return
+            }
+            
+            // Next, check if we have schema info for this tool
+            if let schema = self.schemaMap[tool], let first = schema.keys.first {
+                result = first
+                return
+            }
+            
+            // If tool is a server action, use the parameter name for the server
+            for (server, actions) in self.subTools {
+                if actions.contains(tool) {
+                    if let serverSchema = self.schemaMap[server], let first = serverSchema.keys.first {
+                        result = first
+                        return
+                    }
                 }
             }
         }
         
-        // Default fallback
-        return "text"
+        return result
     }
     
     func getParameterSource(for tool: String) -> String {
-        // For debugging - gives info about how the parameter name was determined
-        if let params = parameterInfoMap[tool], let _ = params.first {
-            return "(from registered parameter info)"
-        } else if let schema = schemaMap[tool], let _ = schema.keys.first {
-            return "(from schema)"
-        } else {
-            for (_, actions) in subTools {
-                if actions.contains(tool) {
-                    return "(from server action parameter)"
+        var result = "(default)"
+        
+        concurrentQueue.sync {
+            // For debugging - gives info about how the parameter name was determined
+            if let params = self.parameterInfoMap[tool], let _ = params.first {
+                result = "(from registered parameter info)"
+                return
+            } else if let schema = self.schemaMap[tool], let _ = schema.keys.first {
+                result = "(from schema)"
+                return
+            } else {
+                for (_, actions) in self.subTools {
+                    if actions.contains(tool) {
+                        result = "(from server action parameter)"
+                        return
+                    }
                 }
             }
-            return "(default)"
         }
+        
+        return result
     }
 } 
