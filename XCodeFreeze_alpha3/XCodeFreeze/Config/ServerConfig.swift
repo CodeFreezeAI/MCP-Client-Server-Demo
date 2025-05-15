@@ -5,11 +5,7 @@ import Foundation
 import AppKit
 import System
 
-
-// Server configuration
-var MCP_SERVER_NAME = "XCF_MCP_SERVER" // Default value, will be overridden by config if available
-let MCP_CLIENT_NAME = "XCodeFreeze"
-let MCP_CLIENT_DEFAULT_VERSION = "1.0.0" // Default version for initial connection
+// MARK: - MCP Server Configuration Functions
 
 // MARK: - Function to determine user home directory
 private func getUserHomeDirectory() -> String {
@@ -31,114 +27,6 @@ func loadMCPServerNameFromConfig(customPath: String? = nil) {
     } catch {
         print("Could not load MCP_SERVER_NAME from config: \(error.localizedDescription)")
         print("Using default MCP_SERVER_NAME: \(MCP_SERVER_NAME) - will attempt to update with actual server name during connection")
-    }
-}
-
-// MARK: - Tool Parameter Info
-struct ToolParameterInfo {
-    let name: String
-    let isRequired: Bool
-    let type: String
-    let description: String?
-    
-    init(name: String, isRequired: Bool, type: String, description: String? = nil) {
-        self.name = name
-        self.isRequired = isRequired
-        self.type = type
-        self.description = description
-    }
-}
-
-// MARK: - Tool Registry for storing discovered tools and parameter info
-class ToolRegistry {
-    static let shared = ToolRegistry()
-    
-    private var toolParameterMap: [String: [ToolParameterInfo]] = [:]
-    private var subToolMap: [String: [String]] = [:]
-    private var toolSchemaMap: [String: [String: String]] = [:] // Maps tool names to their parameter schemas
-    private var toolDescriptionMap: [String: [String: String]] = [:] // Maps tool names to parameter descriptions
-    private var toolExampleMap: [String: [String: String]] = [:] // Maps tool names to parameter examples
-    
-    func registerParameterInfo(for toolName: String, parameters: [ToolParameterInfo]) {
-        toolParameterMap[toolName] = parameters
-    }
-    
-    func registerSubTools(for toolName: String, subTools: [String]) {
-        subToolMap[toolName] = subTools
-    }
-    
-    func registerToolSchema(for toolName: String, schema: [String: String]) {
-        toolSchemaMap[toolName] = schema
-    }
-    
-    func registerToolParameterDescriptions(for toolName: String, descriptions: [String: String]) {
-        toolDescriptionMap[toolName] = descriptions
-    }
-    
-    func registerToolParameterExamples(for toolName: String, examples: [String: String]) {
-        toolExampleMap[toolName] = examples
-    }
-    
-    func getParameterInfo(for toolName: String) -> [ToolParameterInfo]? {
-        return toolParameterMap[toolName]
-    }
-    
-    func getSubTools(for toolName: String) -> [String]? {
-        return subToolMap[toolName]
-    }
-    
-    func getParameterDescription(for toolName: String, paramName: String) -> String? {
-        return toolDescriptionMap[toolName]?[paramName]
-    }
-    
-    func getParameterExample(for toolName: String, paramName: String) -> String? {
-        return toolExampleMap[toolName]?[paramName]
-    }
-    
-    func getToolSchema(for toolName: String) -> [String: String]? {
-        return toolSchemaMap[toolName]
-    }
-    
-    func getParameterName(for toolName: String) -> String {
-        // First check if we have discovered schema info for this tool
-        if let schema = toolSchemaMap[toolName], !schema.isEmpty {
-            // Use the first parameter from the schema
-            if let firstParam = schema.keys.first {
-                return firstParam
-            }
-        }
-        
-        // Second check if we have registered parameter info
-        if let parameters = getParameterInfo(for: toolName), !parameters.isEmpty {
-            return parameters[0].name
-        }
-        
-        // Default to "text" if we don't have any info
-        return "text"
-    }
-    
-    // Add a function to check if schema was discovered
-    func hasDiscoveredSchema(for toolName: String) -> Bool {
-        return toolSchemaMap[toolName] != nil
-    }
-    
-    // Add method to get parameter discovery source
-    func getParameterSource(for toolName: String) -> String {
-        if toolSchemaMap[toolName] != nil {
-            return "(schema-discovered)"
-        } else if toolParameterMap[toolName] != nil {
-            return "(registered)"
-        } else {
-            return "(default-fallback)"
-        }
-    }
-    
-    func clear() {
-        toolParameterMap.removeAll()
-        subToolMap.removeAll()
-        toolSchemaMap.removeAll()
-        toolDescriptionMap.removeAll()
-        toolExampleMap.removeAll()
     }
 }
 
@@ -285,68 +173,4 @@ struct MCPConfig: Codable {
         // If we get here, no config file was found
         throw NSError(domain: "MCPConfig", code: 404, userInfo: [NSLocalizedDescriptionKey: "No configuration file selected. Please select or create a configuration file."])
     }
-}
-
-
-// MARK: - Message View
-struct MessageView: View {
-    let message: ChatMessage
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack {
-                Text(message.sender)
-                    .font(.headline)
-                    .foregroundColor(senderColor)
-                
-                Spacer()
-                
-                Text(message.timestamp, formatter: timeFormatter)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            
-            Text(message.content)
-                .padding(8)
-                .background(message.isFromServer ? Color.blue.opacity(0.1) : Color.gray.opacity(0.1))
-                .cornerRadius(8)
-                .textSelection(.enabled)  // Enable text selection
-        }
-        .padding(.vertical, 4)
-    }
-    
-    private var senderColor: Color {
-        switch message.sender {
-        case "Server":
-            return Color(red: 0.0, green: 0.7, blue: 0.0)  // Slightly darker medium green
-        case "Client":
-            return Color(red: 0.95, green: 0.5, blue: 0.0)  // Slightly darker medium orange
-        case "You":
-            return .blue
-        default:
-            return .primary
-        }
-    }
-    
-    private var timeFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter
-    }
-}
-
-// MARK: - Chat Message Model
-struct ChatMessage: Identifiable {
-    let id = UUID()
-    let sender: String
-    let content: String
-    let timestamp: Date
-    let isFromServer: Bool
-}
-
-// MARK: - MCP Tool Model
-struct MCPTool {
-    let name: String
-    let description: String
-}
-
+} 
