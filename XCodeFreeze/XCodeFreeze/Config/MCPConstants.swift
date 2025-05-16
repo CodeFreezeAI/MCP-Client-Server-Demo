@@ -96,7 +96,7 @@ public struct MCPConstants {
             public static let connected = "Connected to server"
             public static let disconnected = "Disconnected"
             public static let connectedToServer = "Connected to server: %@ v%@"
-            public static let serverResponse = "Result: %@"
+            public static let serverResponse = "Result:\n%@"
         }
         
         /// Logging messages

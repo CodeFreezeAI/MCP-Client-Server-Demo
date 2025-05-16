@@ -87,20 +87,20 @@ class TransportService {
             // Create pipes for bidirectional communication
             let serverInput = Pipe()
             let serverOutput = Pipe()
-            let serverError = Pipe()
+            //let serverError = Pipe()
             
             process.standardInput = serverInput
             process.standardOutput = serverOutput
-            process.standardError = serverError
+            //process.standardError = serverError
             
             // Set up async error reading
-            Task {
-                let errorHandle = serverError.fileHandleForReading
-                let errorData = errorHandle.readDataToEndOfFile()
-                if !errorData.isEmpty, let errorString = String(data: errorData, encoding: .utf8) {
-                    LoggingService.shared.warning(String(format: MCPConstants.Messages.Transport.serverStderr, MCPConstants.Server.name, errorString))
-                }
-            }
+//            Task {
+//                let errorHandle = serverError.fileHandleForReading
+//                let errorData = errorHandle.readDataToEndOfFile()
+//                if !errorData.isEmpty, let errorString = String(data: errorData, encoding: .utf8) {
+//                    LoggingService.shared.warning(String(format: MCPConstants.Messages.Transport.serverStderr, MCPConstants.Server.name, errorString))
+//                }
+//            }
             
             // Start MCP server
             try process.run()

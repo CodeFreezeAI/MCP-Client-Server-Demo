@@ -59,7 +59,7 @@ struct ToolsListView: View {
         .background(Color.gray.opacity(0.03))
         .frame(height: 82)
         .cornerRadius(6)
-        .padding(.horizontal)
+        //.padding(.horizontal)
         .padding(.bottom, 8)
     }
 }

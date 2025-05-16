@@ -24,7 +24,7 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HeaderView(title: "XCodeFreeze Demo")
+            HeaderView(title: "XCodeFreeze")
             
             // Config file selector and status indicator
             ConfigSelectorView(
@@ -60,7 +60,9 @@ struct ContentView: View {
                 isInputFocused: _isInputFocused
             )
         }
-        .padding()
+        .padding(.top, 0)
+        .padding(.horizontal, 15)
+        .padding(.bottom, 15)
         .onAppear {
             handleOnAppear()
         }

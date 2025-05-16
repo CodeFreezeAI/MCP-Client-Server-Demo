@@ -145,8 +145,8 @@ class ClientServerService {
     // MARK: - Server Connection
     
     func startClientServer(configPath: String? = nil) async {
-        logger.info("Starting XCodeFreeze Client Demo...")
-        await messageHandler?.addMessage(content: formatter.formatSystemMessage("Starting XCodeFreeze Client Demo..."), isFromServer: true)
+        logger.info("Starting XCodeFreeze Client...")
+        await messageHandler?.addMessage(content: formatter.formatSystemMessage("Starting XCodeFreeze Client..."), isFromServer: true)
         
         if let customPath = configPath, !customPath.isEmpty {
             logger.info("Using custom config file: \(customPath)")
