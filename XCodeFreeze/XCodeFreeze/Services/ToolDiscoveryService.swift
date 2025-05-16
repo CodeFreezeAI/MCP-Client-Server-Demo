@@ -24,15 +24,15 @@ class ToolDiscoveryService {
         await discoverParametersFromToolSchemas()
         
         // Then, get help info to discover server actions
-        if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.help || $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) }) {
-            
-            // Try with mcp_xcf_help first, then fall back to help
-            if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) }) {
-                _ = await callTool(name: MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help), text: "")
-            } else if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.help }) {
-                _ = await callTool(name: MCPConstants.Commands.help, text: "")
-            }
-        }
+//        if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.help || $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) }) {
+//            
+//            // Try with mcp_xcf_help first, then fall back to help
+//            if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) }) {
+//                _ = await callTool(name: MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help), text: "")
+//            } else if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.help }) {
+//                _ = await callTool(name: MCPConstants.Commands.help, text: "")
+//            }
+//        }
         
         // Finally, query for tool list to understand available tools
         if ToolRegistry.shared.getAvailableTools().contains(where: { $0.name == MCPConstants.Commands.list || $0.name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.list) }) {
