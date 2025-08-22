@@ -255,7 +255,7 @@ class ClientServerService {
             let toolsJson = JSONFormatter.formatArray(toolsResponse.tools) { tool in
                 // Try to extract schema if available
                 var schemaString: String? = nil
-                if let inputSchema = tool.inputSchema, 
+                if case let inputSchema = tool.inputSchema,
                    let objectValue = inputSchema.objectValue {
                     schemaString = objectValue.description
                     
