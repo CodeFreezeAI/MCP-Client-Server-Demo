@@ -196,33 +196,25 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     
     /// Parse AI response for tool suggestions using patterns
     private func parseAIResponseForToolSuggestions(_ response: String) async -> (String, Bool) {
-        // Look for tool suggestion patterns in AI response
-        let toolPatterns = [
+        // Only execute tools if AI explicitly says it will use a tool
+        let explicitToolPatterns = [
             "let me use the",
             "i'll use the", 
-            "using the",
-            "let's run",
-            "i should run",
-            "execute:",
-            "run:",
-            "tool:",
-            "mcp:"
+            "i will use the",
+            "let me run",
+            "i'll run",
+            "i will run"
         ]
         
         let lowerResponse = response.lowercased()
-        let containsToolSuggestion = toolPatterns.contains { pattern in
+        let containsExplicitToolRequest = explicitToolPatterns.contains { pattern in
             lowerResponse.contains(pattern)
         }
         
-        // Check if AI mentions specific tool names
-        let currentTools = await MainActor.run { availableTools }
-        let mentionsSpecificTool = currentTools.contains { tool in
-            lowerResponse.contains(tool.name.lowercased())
-        }
+        // DISABLED: Don't auto-execute based on tool name mentions alone
+        // This was too aggressive and executed tools when AI was just discussing them
         
-        let shouldExecuteTools = containsToolSuggestion || mentionsSpecificTool
-        
-        return (response, shouldExecuteTools)
+        return (response, containsExplicitToolRequest)
     }
     
     /// Execute tools based on AI suggestions

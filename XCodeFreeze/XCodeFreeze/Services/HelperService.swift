@@ -87,7 +87,7 @@ class HelperService {
         // 1. Starts with explicit MCP tool commands
         // 2. Contains MCP-specific patterns
         
-        let mcpPatterns = ["xcf ", "mcp__", "--", "list ", "help", "diagnostics", "debug"]
+        let mcpPatterns = ["xcf ", "mcp__", "--", "diagnostics", "debug"]
         let lowerInput = trimmed.lowercased()
         
         // Check for explicit MCP tool commands
