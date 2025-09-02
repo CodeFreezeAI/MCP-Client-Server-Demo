@@ -69,10 +69,7 @@ class TransportService {
                 arguments = configArgs
             }
             
-            LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.willUseServer, MCPConstants.Server.name, executablePath))
-            if !arguments.isEmpty {
-                LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.withArguments, arguments.joined(separator: " ")))
-            }
+            // Removed duplicate logging - messages will be shown via ClientServerService
             
             let process = Process()
             process.executableURL = URL(fileURLWithPath: executablePath)
@@ -142,7 +139,7 @@ class TransportService {
              //   try process.run()
       
             
-LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.serverProcessStarted, MCPConstants.Server.name, process.processIdentifier))
+        // Removed duplicate logging - server start messages shown via ClientServerService
         self.serverProcess = process
             
             // Create FileDescriptors for transport from the pipes
@@ -185,7 +182,7 @@ LoggingService.shared.info(String(format: MCPConstants.Messages.Transport.server
         }
         
         try await transport.send(pingData)
-        LoggingService.shared.info(MCPConstants.Messages.Transport.testMessageSent)
+        // Removed duplicate logging
         
         return true
     }

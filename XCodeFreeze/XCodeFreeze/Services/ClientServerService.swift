@@ -145,11 +145,9 @@ class ClientServerService {
     // MARK: - Server Connection
     
     func startClientServer(configPath: String? = nil) async {
-        logger.info("Starting XCodeFreeze Client...")
         await messageHandler?.addMessage(content: formatter.formatSystemMessage("Starting XCodeFreeze Client..."), isFromServer: true)
         
         if let customPath = configPath, !customPath.isEmpty {
-            logger.info("Using custom config file: \(customPath)")
             await messageHandler?.addMessage(content: formatter.formatSystemMessage("Using custom config file: \(customPath)"), isFromServer: true)
         }
         
@@ -169,19 +167,19 @@ class ClientServerService {
                     let originalClient = Client(name: MCP_CLIENT_NAME, version: MCP_CLIENT_DEFAULT_VERSION)
                     self.client = originalClient
                     
-                    LoggingService.shared.info(String(format: MCPConstants.Messages.ClientServer.attemptingToConnect, MCPConstants.Server.name))
+                    // Connection status shown via UI messages
                     
                     // Connect the transport first
                     do {
                         try await transport.connect()
-                        LoggingService.shared.info(MCPConstants.Messages.ClientServer.transportConnected)
+                        // Transport status shown via UI messages
                         
                         // Test the transport connection with a ping message
                         let _ = try await self.transportService.testTransport()
                         
                         // Now connect the client using the transport
                         try await self.client?.connect(transport: transport)
-                        LoggingService.shared.info(String(format: MCPConstants.Messages.ClientServer.clientConnected, MCPConstants.Server.name))
+                        // Client connection status shown via UI messages
                         
                         // Initialize connection
                         await self.initializeClient()
