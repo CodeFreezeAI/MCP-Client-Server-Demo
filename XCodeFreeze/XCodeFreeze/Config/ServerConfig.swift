@@ -21,12 +21,12 @@ func loadServerNameFromConfig(customPath: String? = nil) {
         if !config.mcpServers.isEmpty {
             if let firstServerName = config.mcpServers.keys.first {
                 MCPConstants.Server.name = firstServerName
-                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.settingInitialServerName, firstServerName))
+                // Initial server name setting shown via UI
             }
         }
     } catch {
         LoggingService.shared.error(String(format: MCPConstants.Messages.ServerConfig.couldNotLoadServerName, error.localizedDescription))
-        LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.usingDefaultServerName, MCPConstants.Server.name))
+        // Default server name message shown via UI
     }
 }
 
@@ -62,13 +62,13 @@ struct MCPConfig: Codable {
     static func loadConfig(customPath: String? = nil) throws -> MCPConfig {
         // First, try custom path if provided
         if let customPath = customPath {
-            LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.loadingCustomConfig, customPath))
+            // Loading message shown via UI
             
             let customURL = URL(fileURLWithPath: customPath)
             
             if FileManager.default.fileExists(atPath: customPath) {
                 let data = try Data(contentsOf: customURL)
-                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.configFileLoaded, data.count))
+                // Config loaded message shown via UI
                 
                 // Basic validation to ensure it's valid JSON
                 do {
@@ -87,13 +87,13 @@ struct MCPConfig: Codable {
                 
                 // Log found servers
                 let serverKeys = Array(config.mcpServers.keys)
-                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.foundServersInConfig, serverKeys.joined(separator: ", ")))
+                // Server discovery message shown via UI
                 
                 // Set initial server name from config
                 if !config.mcpServers.isEmpty {
                     if let firstServerName = config.mcpServers.keys.first {
                         MCPConstants.Server.name = firstServerName
-                        LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.settingInitialServerName, firstServerName))
+                        // Server name setting shown via UI
                     }
                 }
                 
@@ -106,13 +106,13 @@ struct MCPConfig: Codable {
         
         // Try the path from UserDefaults if available
         if let savedPath = UserDefaults.standard.string(forKey: "mcpConfigPath") {
-            LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.checkingSavedConfig, savedPath))
+            // Saved config check shown via UI
             
             let savedURL = URL(fileURLWithPath: savedPath)
             
             if FileManager.default.fileExists(atPath: savedPath) {
                 let data = try Data(contentsOf: savedURL)
-                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.savedConfigLoaded, data.count))
+                // Saved config loaded message shown via UI
                 
                 // Basic validation to ensure it's valid JSON
                 do {
@@ -127,13 +127,13 @@ struct MCPConfig: Codable {
                 
                 // Log found servers
                 let serverKeys = Array(config.mcpServers.keys)
-                LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.foundServersInConfig, serverKeys.joined(separator: ", ")))
+                // Server discovery message shown via UI
                 
                 // Set initial server name from config
                 if !config.mcpServers.isEmpty {
                     if let firstServerName = config.mcpServers.keys.first {
                         MCPConstants.Server.name = firstServerName
-                        LoggingService.shared.info(String(format: MCPConstants.Messages.ServerConfig.settingInitialServerName, firstServerName))
+                        // Server name setting shown via UI
                     }
                 }
                 

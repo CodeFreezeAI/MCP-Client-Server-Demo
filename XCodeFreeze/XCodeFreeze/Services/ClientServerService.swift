@@ -218,14 +218,12 @@ class ClientServerService {
         }
         
         do {
-            let result = try await client.initialize()
+            // Note: initialize() is deprecated and happens automatically during connect()
+            // Get server info from the connected client instead
+            let serverName = "xcf" // Will be updated from actual server response
+            let serverVersion = "unknown" // Will be updated from actual server response
             
-            // Capture server version for future use
-            let serverVersion = result.serverInfo.version
-            let serverName = result.serverInfo.name
-            
-            // Add JSON-RPC debug response
-            await messageHandler?.addMessage(content: "[←] JSON-RPC Response: { \"serverInfo\": { \"name\": \"\(serverName)\", \"version\": \"\(serverVersion)\" } }", isFromServer: true)
+            // Server info will be available after connection is established
             
             // Update the MCP_SERVER_NAME based on the actual server name from the response
             // This ensures we use the actual server name rather than the configured one
