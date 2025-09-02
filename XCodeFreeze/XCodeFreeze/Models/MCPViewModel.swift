@@ -19,6 +19,9 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     @Published var statusMessage = "Initializing..."
     @Published var availableTools: [MCPTool] = []
     @Published var serverSubtools: [String] = []
+    @Published var isAIProcessing = false
+    
+    // AI Service integration - accessed via MainActor
     
     // Use lazy initialization to avoid self being used before fully initialized
     private lazy var clientServerService: ClientServerService = {
@@ -126,6 +129,56 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     // Debug feature to send an echo request-response to test communication
     func startDebugMessageTest() async {
         await clientServerService.startDebugMessageTest()
+    }
+    
+    // MARK: - AI Integration
+    
+    /// Send a message to the AI service
+    func sendToAI(_ content: String, includeThinking: Bool = true) async {
+        await MainActor.run {
+            isAIProcessing = true
+        }
+        
+        defer { 
+            Task { @MainActor in
+                isAIProcessing = false
+            }
+        }
+        
+        // Add user message to chat
+        await addMessage(content: content, isFromServer: false)
+        
+        // Send to AI service
+        let aiService = await AIService.shared
+        if let response = await aiService.sendMessage(content, includeThinking: includeThinking) {
+            // Determine sender name based on selected model
+            let senderName: String
+            if let selectedModel = await aiService.selectedModel {
+                senderName = await aiService.getModelDisplayName(selectedModel)
+            } else {
+                senderName = "AI"
+            }
+            
+            // Add AI response to chat
+            let aiMessage = ChatMessage(
+                sender: senderName,
+                content: response,
+                timestamp: Date(),
+                isFromServer: false
+            )
+            
+            await MainActor.run {
+                messages.append(aiMessage)
+            }
+        } else {
+            await addMessage(content: "❌ Failed to get response from AI", isFromServer: true)
+        }
+    }
+    
+    /// Initialize AI service and fetch models
+    func initializeAI() async {
+        let aiService = await AIService.shared
+        await aiService.fetchAvailableModels()
     }
     
     // MARK: - Helper Methods

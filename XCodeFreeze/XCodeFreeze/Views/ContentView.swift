@@ -35,6 +35,10 @@ struct ContentView: View {
                 helperService: helperService
             )
             
+            // AI model selector
+            AIModelSelectorView(aiService: AIService.shared)
+                .padding(.horizontal, 8)
+            
             // Chat area with auto-scrolling
             ChatView(
                 messages: viewModel.messages,
@@ -81,6 +85,11 @@ struct ContentView: View {
             )
         } else {
             viewModel.addInfoMessage("Please select a configuration file to connect.")
+        }
+        
+        // Initialize AI service
+        Task {
+            await viewModel.initializeAI()
         }
     }
 }
