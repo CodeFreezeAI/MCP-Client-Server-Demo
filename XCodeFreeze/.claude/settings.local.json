@@ -4,7 +4,8 @@
       "mcp__xcf-server__read_dir",
       "mcp__xcf-server__build_project",
       "mcp__xcf-server__run_project",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

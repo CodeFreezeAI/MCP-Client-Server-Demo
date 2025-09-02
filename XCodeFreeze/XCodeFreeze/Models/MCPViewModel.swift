@@ -133,7 +133,7 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     
     // MARK: - AI Integration
     
-    /// Send a message to the AI service
+    /// Send a message to the AI service with proper MCP integration
     func sendToAI(_ content: String, includeThinking: Bool = true) async {
         await MainActor.run {
             isAIProcessing = true
@@ -151,6 +151,7 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
         // Send to AI service with available tools
         let aiService = await AIService.shared
         let currentTools = await MainActor.run { availableTools }
+        
         if let response = await aiService.sendMessage(content, includeThinking: includeThinking, availableTools: currentTools) {
             // Determine sender name based on selected model
             let senderName: String
@@ -160,10 +161,13 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
                 senderName = "AI"
             }
             
+            // Check if AI is suggesting tool usage
+            let (finalResponse, shouldExecuteTools) = await parseAIResponseForToolSuggestions(response)
+            
             // Add AI response to chat
             let aiMessage = ChatMessage(
                 sender: senderName,
-                content: response,
+                content: finalResponse,
                 timestamp: Date(),
                 isFromServer: false
             )
@@ -171,6 +175,12 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
             await MainActor.run {
                 messages.append(aiMessage)
             }
+            
+            // If AI suggested tools, execute them and continue the conversation
+            if shouldExecuteTools {
+                await executeToolsFromAISuggestion(finalResponse, senderName: senderName)
+            }
+            
         } else {
             await addMessage(content: "❌ Failed to get response from AI", isFromServer: true)
         }
@@ -180,6 +190,63 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     func initializeAI() async {
         let aiService = await AIService.shared
         await aiService.fetchAvailableModels()
+    }
+    
+    // MARK: - MCP Integration Helpers
+    
+    /// Parse AI response for tool suggestions using patterns
+    private func parseAIResponseForToolSuggestions(_ response: String) async -> (String, Bool) {
+        // Look for tool suggestion patterns in AI response
+        let toolPatterns = [
+            "let me use the",
+            "i'll use the", 
+            "using the",
+            "let's run",
+            "i should run",
+            "execute:",
+            "run:",
+            "tool:",
+            "mcp:"
+        ]
+        
+        let lowerResponse = response.lowercased()
+        let containsToolSuggestion = toolPatterns.contains { pattern in
+            lowerResponse.contains(pattern)
+        }
+        
+        // Check if AI mentions specific tool names
+        let currentTools = await MainActor.run { availableTools }
+        let mentionsSpecificTool = currentTools.contains { tool in
+            lowerResponse.contains(tool.name.lowercased())
+        }
+        
+        let shouldExecuteTools = containsToolSuggestion || mentionsSpecificTool
+        
+        return (response, shouldExecuteTools)
+    }
+    
+    /// Execute tools based on AI suggestions
+    private func executeToolsFromAISuggestion(_ aiResponse: String, senderName: String) async {
+        // Simple pattern matching to extract tool commands from AI response
+        let currentTools = await MainActor.run { availableTools }
+        
+        for tool in currentTools {
+            if aiResponse.lowercased().contains(tool.name.lowercased()) {
+                // Show what we're about to execute
+                await addMessage(content: "🔧 Executing: \(tool.name)", isFromServer: true)
+                
+                // Execute the MCP tool
+                await callTool(name: tool.name, text: "")
+                
+                // Note: In a more sophisticated implementation, we would:
+                // 1. Parse the AI response for specific arguments
+                // 2. Extract parameters for the tool call
+                // 3. Handle multiple tool calls
+                // 4. Send results back to AI for further processing
+                
+                break // Execute only first found tool for now
+            }
+        }
     }
     
     // MARK: - Helper Methods

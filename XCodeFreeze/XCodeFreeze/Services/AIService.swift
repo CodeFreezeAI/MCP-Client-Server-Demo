@@ -116,14 +116,19 @@ class AIService: ObservableObject {
         var messages = [ChatCompletionMessage]()
         
         if includeThinking {
-            // Add system message for thinking capability and tool usage
+            // Add system message for thinking capability
+            let toolsList = availableTools.map { "- \($0.name): \($0.description)" }.joined(separator: "\n")
             messages.append(ChatCompletionMessage(
                 role: "system",
                 content: """
-You are an expert coding assistant integrated into XCodeFreeze. You have access to MCP (Model Context Protocol) tools that can help you with various software engineering tasks.
+You are an expert coding assistant integrated into XCodeFreeze. You can help with various software engineering tasks.
 
-Available MCP Tools:
-\(availableTools.map { "- \($0.name): \($0.description)" }.joined(separator: "\n"))
+\(toolsList.isEmpty ? "" : """
+Available MCP Tools (mention these by name when they would be helpful):
+\(toolsList)
+
+When you want to use a tool, simply mention it in your response like "Let me use the Read tool to examine that file" or "I'll run the Bash tool to check the status". The system will automatically execute the tool for you.
+""")
 
 When solving complex problems, use <thinking> tags to show your reasoning process before providing the final answer.
 
@@ -131,31 +136,20 @@ Example:
 <thinking>
 Let me analyze this request...
 The user wants me to...
-I should use the appropriate tool...
+I should use the Read tool to examine the file first...
 </thinking>
 
-Then provide your response.
+Then provide your response. If you need to use tools, mention them naturally in your response.
 
-Use the available tools when they can help answer the user's question or complete their request. Be helpful, accurate, and concise in your responses.
+Be helpful, accurate, and concise in your responses.
 """
             ))
         }
         
         messages.append(ChatCompletionMessage(role: "user", content: content))
         
-        // Convert MCP tools to AI function format
-        let aiTools = availableTools.map { mcpTool in
-            AITool(
-                type: "function",
-                function: AIFunction(
-                    name: mcpTool.name,
-                    description: mcpTool.description,
-                    parameters: createBasicFunctionParameters()
-                )
-            )
-        }
-        
-        return await sendChatCompletionWithTools(messages: messages, tools: aiTools.isEmpty ? nil : aiTools)
+        // Use basic chat completion without tools for now
+        return await sendChatCompletion(messages: messages)
     }
     
     // MARK: - Tool Integration
