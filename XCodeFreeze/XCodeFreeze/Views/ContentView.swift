@@ -23,21 +23,15 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HeaderView(title: "XCodeFreeze")
-            
-            // Config file selector and status indicator
-            ConfigSelectorView(
+            // Single-line JSON-style header with all controls
+            JSONHeaderView(
                 configFilePath: $configFilePath,
                 isConnected: viewModel.isConnected,
                 showConfigAlert: $showConfigAlert,
                 viewModel: viewModel,
-                helperService: helperService
+                helperService: helperService,
+                aiService: AIService.shared
             )
-            
-            // AI model selector
-            AIModelSelectorView(aiService: AIService.shared)
-                .padding(.horizontal, 8)
             
             // Chat area with auto-scrolling
             ChatView(
