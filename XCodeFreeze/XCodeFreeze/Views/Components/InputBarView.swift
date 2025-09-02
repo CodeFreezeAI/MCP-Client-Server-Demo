@@ -18,7 +18,7 @@ struct InputBarView: View {
     
     var body: some View {
         HStack {
-            TextField("Enter command...", text: $inputText)
+            TextField("Ask me anything or enter MCP commands...", text: $inputText)
                 .font(.system(size: 14))
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disabled(!isConnected)
@@ -42,16 +42,26 @@ struct InputBarView: View {
             .buttonStyle(BorderlessButtonStyle())
             .opacity(inputText.isEmpty ? 0 : 1)
             
-            Button("Send") {
+            Button(action: {
                 helperService.submitMessage(
                     inputText: inputText,
                     viewModel: viewModel,
                     textBinding: $inputText,
                     focusState: $isInputFocused
                 )
+            }) {
+                HStack(spacing: 4) {
+                    if viewModel.isAIProcessing {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("AI Thinking...")
+                    } else {
+                        Text("Send")
+                    }
+                }
             }
-            .buttonStyle(.primary(disabled: !isConnected || inputText.isEmpty))
-            .disabled(!isConnected || inputText.isEmpty)
+            .buttonStyle(.primary(disabled: !isConnected || inputText.isEmpty || viewModel.isAIProcessing))
+            .disabled(!isConnected || inputText.isEmpty || viewModel.isAIProcessing)
             
             DebugButtonsView(isConnected: isConnected, viewModel: viewModel)
         }

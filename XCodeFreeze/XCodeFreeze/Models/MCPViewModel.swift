@@ -148,9 +148,10 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
         // Add user message to chat
         await addMessage(content: content, isFromServer: false)
         
-        // Send to AI service
+        // Send to AI service with available tools
         let aiService = await AIService.shared
-        if let response = await aiService.sendMessage(content, includeThinking: includeThinking) {
+        let currentTools = await MainActor.run { availableTools }
+        if let response = await aiService.sendMessage(content, includeThinking: includeThinking, availableTools: currentTools) {
             // Determine sender name based on selected model
             let senderName: String
             if let selectedModel = await aiService.selectedModel {

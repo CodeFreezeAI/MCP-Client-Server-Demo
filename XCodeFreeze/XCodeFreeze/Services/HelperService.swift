@@ -83,26 +83,24 @@ class HelperService {
     private func shouldSendToAI(inputText: String) -> Bool {
         let trimmed = inputText.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // Send to AI if:
-        // 1. Starts with "@ai" or "/ai"
-        // 2. Is a natural language question/request
-        // 3. Contains keywords that suggest AI assistance
+        // Send to MCP tools directly if:
+        // 1. Starts with explicit MCP tool commands
+        // 2. Contains MCP-specific patterns
         
-        if trimmed.lowercased().hasPrefix("@ai ") || trimmed.lowercased().hasPrefix("/ai ") {
-            return true
-        }
-        
-        // Check if it looks like a natural language query rather than a tool command
-        let aiKeywords = ["help", "explain", "how", "what", "why", "can you", "please", "write", "create", "implement", "fix", "debug", "optimize"]
+        let mcpPatterns = ["xcf ", "mcp__", "--", "list ", "help", "diagnostics", "debug"]
         let lowerInput = trimmed.lowercased()
         
-        // If it contains AI keywords and doesn't look like a tool command, send to AI
-        if aiKeywords.contains(where: { lowerInput.contains($0) }) && !lowerInput.contains(" --") && !lowerInput.contains("xcf ") {
-            return true
+        // Check for explicit MCP tool commands
+        if mcpPatterns.contains(where: { lowerInput.hasPrefix($0) }) {
+            return false
         }
         
-        // Default: send to MCP tools for backwards compatibility
-        return false
+        // Check for tool names from available tools - if it matches, send to MCP
+        // This will be handled by checking against actual available tools
+        
+        // Default: send to AI for natural conversation
+        // This makes it a true chat interface where AI can use tools as needed
+        return true
     }
 }
 
