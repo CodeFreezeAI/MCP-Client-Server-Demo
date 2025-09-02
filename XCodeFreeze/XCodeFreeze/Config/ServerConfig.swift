@@ -86,7 +86,7 @@ struct MCPConfig: Codable {
                 let config = try decoder.decode(MCPConfig.self, from: data)
                 
                 // Log found servers
-                let serverKeys = Array(config.mcpServers.keys)
+                let _ = Array(config.mcpServers.keys)
                 // Server discovery message shown via UI
                 
                 // Set initial server name from config
@@ -126,7 +126,7 @@ struct MCPConfig: Codable {
                 let config = try decoder.decode(MCPConfig.self, from: data)
                 
                 // Log found servers
-                let serverKeys = Array(config.mcpServers.keys)
+                let _ = Array(config.mcpServers.keys)
                 // Server discovery message shown via UI
                 
                 // Set initial server name from config

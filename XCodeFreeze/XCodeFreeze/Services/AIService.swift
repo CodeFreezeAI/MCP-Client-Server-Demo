@@ -11,11 +11,28 @@ class AIService: ObservableObject {
     @Published var selectedModel: AIModel?
     @Published var isConnected = false
     @Published var isLoading = false
+    @Published var conversationHistory: [ChatCompletionMessage] = []
     
-    private let baseURL = "http://192.168.1.135:11434"
+    @Published var baseURL = "http://192.168.1.135:11434"
     private let session = URLSession.shared
     
     private init() {}
+    
+    // MARK: - Server Configuration
+    
+    func updateServerAddress(_ address: String) {
+        let cleanAddress = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        if cleanAddress.hasPrefix("http://") || cleanAddress.hasPrefix("https://") {
+            baseURL = cleanAddress
+        } else {
+            baseURL = "http://\(cleanAddress)"
+        }
+        
+        // Reset connection status when server changes
+        isConnected = false
+        availableModels = []
+        selectedModel = nil
+    }
     
     // MARK: - Model Management
     
@@ -146,10 +163,29 @@ Be helpful, accurate, and concise in your responses.
             ))
         }
         
-        messages.append(ChatCompletionMessage(role: "user", content: content))
+        // Add recent conversation history (keep last 10 messages to manage token count)
+        let recentHistory = conversationHistory.suffix(10)
+        messages.append(contentsOf: recentHistory)
         
-        // Use basic chat completion without tools for now
-        return await sendChatCompletion(messages: messages)
+        // Add current user message
+        let userMessage = ChatCompletionMessage(role: "user", content: content)
+        messages.append(userMessage)
+        
+        // Send to LLM
+        if let response = await sendChatCompletion(messages: messages) {
+            // Add both user message and assistant response to history
+            conversationHistory.append(userMessage)
+            conversationHistory.append(ChatCompletionMessage(role: "assistant", content: response))
+            
+            // Keep history manageable (last 50 messages)
+            if conversationHistory.count > 50 {
+                conversationHistory.removeFirst(conversationHistory.count - 50)
+            }
+            
+            return response
+        }
+        
+        return nil
     }
     
     // MARK: - Tool Integration

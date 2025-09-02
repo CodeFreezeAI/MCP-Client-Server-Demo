@@ -15,186 +15,110 @@ struct JSONHeaderView: View {
     
     var body: some View {
         HStack(spacing: 8) {
-            // JSON opening brace
-            Text("{")
-                .font(.system(size: 16, weight: .medium, design: .monospaced))
-                .foregroundColor(.secondary)
-            
-            // Config section
-            HStack(spacing: 4) {
-                Text("\"config\":")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                TextField("path/to/config.json", text: $configFilePath)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .font(.system(size: 12, design: .monospaced))
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(4)
-                    .disabled(isConnected)
-                    .frame(width: 150)
-            }
-            
-            Text(",")
-                .font(.system(size: 16, design: .monospaced))
-                .foregroundColor(.secondary)
-            
-            // Actions section
-            HStack(spacing: 4) {
-                Text("\"actions\":")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                Text("[")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                Button("Select") {
-                    if let newPath = helperService.selectConfigFile() {
-                        configFilePath = newPath
-                    }
-                }
-                .buttonStyle(JSONButtonStyle(disabled: isConnected))
+            // Just the config file path and essential buttons
+            TextField("Path to MCP JSON config file", text: $configFilePath)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
                 .disabled(isConnected)
-                
-                Text(",")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                Button("New") {
-                    if let newPath = helperService.createNewConfigFile(messageHandler: { message in
-                        viewModel.addInfoMessage(message)
-                    }) {
-                        configFilePath = newPath
-                    }
+            
+            Button("Select") {
+                if let newPath = helperService.selectConfigFile() {
+                    configFilePath = newPath
                 }
-                .buttonStyle(JSONButtonStyle(disabled: isConnected))
-                .disabled(isConnected)
-                
-                Text(",")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                Button(isConnected ? "Disconnect" : "Connect") {
-                    if isConnected {
-                        viewModel.stopClientServer()
-                    } else {
-                        if configFilePath.isEmpty {
-                            showConfigAlert.wrappedValue = true
-                        } else {
-                            helperService.connectToServer(
-                                viewModel: viewModel,
-                                configPath: configFilePath,
-                                focusState: $isInputFocused
-                            )
-                        }
-                    }
-                }
-                .buttonStyle(JSONButtonStyle(disabled: false, isPrimary: true))
-                
-                Text("]")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
             }
+            .buttonStyle(.standard(disabled: isConnected))
+            .disabled(isConnected)
             
-            Text(",")
-                .font(.system(size: 16, design: .monospaced))
-                .foregroundColor(.secondary)
-            
-            // LLM Server section
-            HStack(spacing: 4) {
-                Text("\"llm\":")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                TextField("IP:port", text: $llmServerAddress)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .font(.system(size: 12, design: .monospaced))
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 2)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(4)
-                    .frame(width: 120)
-            }
-            
-            Text(",")
-                .font(.system(size: 16, design: .monospaced))
-                .foregroundColor(.secondary)
-            
-            // Model section
-            HStack(spacing: 4) {
-                Text("\"model\":")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
-                Button(action: {
-                    showModelPicker.toggle()
+            Button("New") {
+                if let newPath = helperService.createNewConfigFile(messageHandler: { message in
+                    viewModel.addInfoMessage(message)
                 }) {
-                    HStack(spacing: 2) {
-                        Text(selectedModelDisplayText)
-                            .font(.system(size: 12, design: .monospaced))
-                            .lineLimit(1)
-                        
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 8))
+                    configFilePath = newPath
+                }
+            }
+            .buttonStyle(.standard(disabled: isConnected))
+            .disabled(isConnected)
+            
+            Button(isConnected ? "Disconnect" : "Connect") {
+                if isConnected {
+                    viewModel.stopClientServer()
+                } else {
+                    if configFilePath.isEmpty {
+                        showConfigAlert.wrappedValue = true
+                    } else {
+                        helperService.connectToServer(
+                            viewModel: viewModel,
+                            configPath: configFilePath,
+                            focusState: $isInputFocused
+                        )
                     }
                 }
-                .buttonStyle(JSONButtonStyle(disabled: aiService.availableModels.isEmpty))
-                .disabled(aiService.availableModels.isEmpty)
-                .popover(isPresented: $showModelPicker) {
-                    modelPickerContent
-                }
             }
+            .buttonStyle(.primary(disabled: false))
             
-            Text(",")
-                .font(.system(size: 16, design: .monospaced))
-                .foregroundColor(.secondary)
+            // LLM Server Address
+            TextField("IP:Port", text: $llmServerAddress)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .frame(width: 170)
+                .font(.system(size: 12))
+                .onChange(of: llmServerAddress) { oldValue, newValue in
+                    aiService.updateServerAddress(newValue)
+                }
             
-            // Status section
-            HStack(spacing: 4) {
-                Text("\"status\":")
-                    .font(.system(size: 12, design: .monospaced))
-                    .foregroundColor(.secondary)
-                
+            // AI Model dropdown
+            Button(action: {
+                showModelPicker.toggle()
+            }) {
                 HStack(spacing: 4) {
-                    Circle()
-                        .fill(connectionStatusColor)
-                        .frame(width: 6, height: 6)
+                    Image(systemName: "brain.head.profile")
+                        .font(.system(size: 12))
                     
-                    Text(connectionStatusText)
-                        .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(connectionStatusColor)
+                    Text(selectedModelDisplayText)
+                        .font(.system(size: 12, weight: .medium))
+                        .lineLimit(1)
+                    
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10))
                 }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 2)
-                .background(Color.gray.opacity(0.1))
-                .cornerRadius(4)
+            }
+            .buttonStyle(.standard(disabled: aiService.availableModels.isEmpty))
+            .disabled(aiService.availableModels.isEmpty)
+            .popover(isPresented: $showModelPicker) {
+                modelPickerContent
             }
             
-            // Refresh button
+            // Refresh models
             Button(action: {
                 Task {
                     await aiService.fetchAvailableModels()
                 }
             }) {
                 Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 10))
+                    .font(.system(size: 12))
             }
-            .buttonStyle(JSONButtonStyle(disabled: aiService.isLoading))
+            .buttonStyle(.standard(disabled: aiService.isLoading))
             .disabled(aiService.isLoading)
             
-            // JSON closing brace
-            Text("}")
-                .font(.system(size: 16, weight: .medium, design: .monospaced))
-                .foregroundColor(.secondary)
-            
-            Spacer()
+            // Status indicator
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(connectionStatusColor)
+                    .frame(width: 8, height: 8)
+                
+                Text(connectionStatusText)
+                    .font(.system(size: 12))
+            }
         }
-        .padding(.horizontal, 12)
+        .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(Color.gray.opacity(0.05))
+        .onAppear {
+            // Sync initial LLM server address from AIService
+            if let url = URL(string: aiService.baseURL) {
+                llmServerAddress = url.host.map { host in
+                    let port = url.port ?? 11434
+                    return "\(host):\(port)"
+                } ?? "192.168.1.135:11434"
+            }
+        }
         .alert("Configuration Required", isPresented: showConfigAlert) {
             Button("OK") { }
         } message: {
