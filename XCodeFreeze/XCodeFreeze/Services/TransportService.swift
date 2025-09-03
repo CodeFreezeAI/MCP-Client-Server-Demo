@@ -76,7 +76,7 @@ class TransportService {
 
             // Set arguments from the config
             process.arguments = arguments
-            print("ARGS", process.arguments)
+            print("ARGS", process.arguments ?? [])
             // Set environment variables if provided
             if let env = serverConfig.env {
                 print("ENV", env)

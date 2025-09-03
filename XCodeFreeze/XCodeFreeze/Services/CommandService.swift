@@ -21,7 +21,7 @@ class CommandService {
     /// - Returns: A tuple containing the tool name and arguments
     func processCommand(inputText: String, availableTools: [MCPTool]) -> (toolName: String, args: String) {
         // Store original input for debugging
-        let originalInput = inputText
+        let _ = inputText
         
         // Special handling for "use [server]" which is a common command
 //        if originalInput.lowercased() == "use \(MCPConstants.Server.name)" {
@@ -34,11 +34,11 @@ class CommandService {
         
         // Extract the tool name and arguments
         let components = inputText.split(separator: " ", maxSplits: 1)
-        var toolName = String(components[0])
-        var toolArgs = components.count > 1 ? String(components[1]) : ""
+        let toolName = String(components[0])
+        let toolArgs = components.count > 1 ? String(components[1]) : ""
         
         // Check if this is a direct server command
-        var isKnownCommand = false
+        let _ = false
         
 //        // Special handling for server sub-tools
 //        if let serverActions = ToolRegistry.shared.getSubTools(for: MCPConstants.Server.name) {

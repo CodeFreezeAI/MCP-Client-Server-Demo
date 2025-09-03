@@ -133,8 +133,39 @@ class AIService: ObservableObject {
         var messages = [ChatCompletionMessage]()
         
         if includeThinking {
-            // Add system message for thinking capability
-            let toolsList = availableTools.map { "- \($0.name): \($0.description)" }.joined(separator: "\n")
+            // Add system message for thinking capability with detailed tool schemas
+            let toolsList = availableTools.map { tool in
+                var toolDescription = "- **\(tool.name)**: \(tool.description)"
+                
+                // Add parameter information if available
+                if let schema = tool.inputSchema,
+                   let properties = schema["properties"] as? [String: Any],
+                   let required = schema["required"] as? [String] {
+                    
+                    let paramsList = properties.map { (key, value) in
+                        let isRequired = required.contains(key)
+                        let requiredStr = isRequired ? " (required)" : " (optional)"
+                        
+                        if let paramInfo = value as? [String: Any],
+                           let type = paramInfo["type"] as? String,
+                           let description = paramInfo["description"] as? String {
+                            return "    • \(key): \(type)\(requiredStr) - \(description)"
+                        } else {
+                            return "    • \(key)\(requiredStr)"
+                        }
+                    }.joined(separator: "\n")
+                    
+                    if !paramsList.isEmpty {
+                        toolDescription += "\n\(paramsList)"
+                    }
+                } else if let schema = tool.inputSchema {
+                    // Simple schema without detailed properties
+                    toolDescription += "\n    Parameters: \(schema)"
+                }
+                
+                return toolDescription
+            }.joined(separator: "\n\n")
+            
             messages.append(ChatCompletionMessage(
                 role: "system",
                 content: """
@@ -142,9 +173,10 @@ You are an expert coding assistant integrated into XCodeFreeze. You can help wit
 
 \(toolsList.isEmpty ? "" : """
 Available MCP Tools (mention these by name when they would be helpful):
+
 \(toolsList)
 
-When you want to use a tool, simply mention it in your response like "Let me use the Read tool to examine that file" or "I'll run the Bash tool to check the status". The system will automatically execute the tool for you.
+When you want to use a tool, simply mention it in your response like "Let me use the read_file tool to examine that file" or "I'll run the list_projects tool to see available projects". The system will automatically execute the tool for you.
 """)
 
 When solving complex problems, use <thinking> tags to show your reasoning process before providing the final answer.
@@ -153,7 +185,7 @@ Example:
 <thinking>
 Let me analyze this request...
 The user wants me to...
-I should use the Read tool to examine the file first...
+I should use the read_file tool to examine the file first...
 </thinking>
 
 Then provide your response. If you need to use tools, mention them naturally in your response.

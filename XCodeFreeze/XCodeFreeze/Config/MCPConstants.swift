@@ -201,6 +201,7 @@ public struct MCPConstants {
             public static let extractedFromQuoted = "  Extracted parameter '%@' from quoted name in schema"
             public static let unableToExtract = "  WARNING: Unable to extract parameter name from schema, using generic 'input'"
             public static let noParametersFound = "  No parameters found in schema for %@"
+            public static let noParametersNeeded = "  Tool %@ has empty schema - no parameters needed"
         }
         
         /// JSON formatter messages

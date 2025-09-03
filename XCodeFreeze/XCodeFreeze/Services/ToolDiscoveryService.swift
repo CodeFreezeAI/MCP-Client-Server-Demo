@@ -396,21 +396,43 @@ class ToolDiscoveryService {
                         }
                     }
                     
-                    // If still no parameter name, use a generic one with warning
+                    // If still no parameter name, check if this tool actually needs parameters
                     if paramName == nil {
-                        paramName = "input"
-                        LoggingService.shared.warning(String(format: MCPConstants.Messages.ToolDiscovery.parameterNameWarning, tool))
+                        // Check if this is a tool that likely doesn't need parameters based on common patterns
+                        let noParamTools = ["list", "help", "xcf_help", "show_help", "tools", "show_env", "show_folder", 
+                                          "show_current_project", "list_projects", "use_xcf", "grant_permission", 
+                                          "run_project", "build_project"]
+                        
+                        // Check if this tool matches any no-parameter tool patterns
+                        let toolLower = tool.lowercased()
+                        let isNoParamTool = noParamTools.contains { noParamTool in
+                            toolLower == noParamTool || toolLower.hasSuffix("_\(noParamTool)") || toolLower.hasPrefix("mcp_") && toolLower.contains("_\(noParamTool)")
+                        }
+                        
+                        if isNoParamTool {
+                            // This tool doesn't need parameters, register empty schema to mark as discovered
+                            LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.noParametersNeeded, tool))
+                            ToolRegistry.shared.registerToolSchema(for: tool, schema: [:])
+                            continue
+                        } else {
+                            // Only create generic parameter for tools that likely need parameters
+                            paramName = "input"
+                            LoggingService.shared.warning(String(format: MCPConstants.Messages.ToolDiscovery.parameterNameWarning, tool))
+                        }
                     }
                 }
                 
-                let description = toolDescriptions[tool]
-                let paramInfo = ToolParameterInfo(
-                    name: paramName!,
-                    isRequired: true,
-                    type: "string",
-                    description: description
-                )
-                ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
+                // Only create parameter info if we determined the tool needs parameters
+                if let paramName = paramName {
+                    let description = toolDescriptions[tool]
+                    let paramInfo = ToolParameterInfo(
+                        name: paramName,
+                        isRequired: true,
+                        type: "string",
+                        description: description
+                    )
+                    ToolRegistry.shared.registerParameterInfo(for: tool, parameters: [paramInfo])
+                }
             }
         }
     }
@@ -694,13 +716,37 @@ class ToolDiscoveryService {
                 }
             }
             
-            // Last resort - use a generic parameter name only if we truly can't extract anything
-            // This is technically still a hardcoded fallback, but only used when we have no other options
+            // If still not found, check if this tool actually needs parameters
             if !foundParameters {
-                // Use a generic parameter name as absolute last resort
-                parameterMap["input"] = "string"
-                LoggingService.shared.warning(MCPConstants.Messages.ToolDiscovery.unableToExtractParameterNameFromSchemaWarning)
-                foundParameters = true
+                // Check if the schema is just an empty object type with no properties
+                if let objectValue = schema.objectValue {
+                    let hasProperties = objectValue["properties"] != nil
+                    let hasRequired = objectValue["required"] != nil
+                    let hasOtherParams = objectValue.keys.contains { key in
+                        !["type", "properties", "required"].contains(key) && objectValue[key]?.objectValue?["type"] != nil
+                    }
+                    
+                    // If it's just {"type": "object"} with no properties, required fields, or other parameters,
+                    // then this tool doesn't need any parameters
+                    if !hasProperties && !hasRequired && !hasOtherParams {
+                        LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.noParametersNeeded, toolName))
+                        // Register an empty schema to mark this tool as discovered but parameterless
+                        ToolRegistry.shared.registerToolSchema(for: toolName, schema: [:])
+                        return
+                    }
+                }
+                
+                // Only create generic parameter as absolute last resort for server tools that should have parameters
+                if toolName == MCPConstants.Server.name || toolName.hasPrefix("mcp_\(MCPConstants.Server.name)_") {
+                    parameterMap["input"] = "string"
+                    LoggingService.shared.warning(MCPConstants.Messages.ToolDiscovery.unableToExtractParameterNameFromSchemaWarning)
+                    foundParameters = true
+                } else {
+                    // For non-server tools, just register empty schema
+                    LoggingService.shared.debug(String(format: MCPConstants.Messages.ToolDiscovery.noParametersNeeded, toolName))
+                    ToolRegistry.shared.registerToolSchema(for: toolName, schema: [:])
+                    return
+                }
             }
         }
         

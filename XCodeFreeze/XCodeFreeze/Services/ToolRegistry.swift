@@ -4,6 +4,7 @@ import Foundation
 struct MCPTool {
     let name: String
     let description: String
+    let inputSchema: [String: Any]?
 }
 
 struct ToolParameterInfo {

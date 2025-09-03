@@ -204,6 +204,14 @@ class ClientServerService {
         }
     }
     
+    // MARK: - Helper Methods
+    
+    /// Convert schema object to dictionary for easier access
+    private func convertSchemaToDict(_ objectValue: [String: Any]) -> [String: Any] {
+        // The schema is already in dictionary format, just return it
+        return objectValue
+    }
+    
     // MARK: - Client Initialization
     
     private func initializeClient() async {
@@ -273,8 +281,20 @@ class ClientServerService {
             await messageHandler?.addMessage(content: "[←] JSON-RPC Response: { \"tools\": \(toolsJson) }", isFromServer: true)
             
             // Convert to MCPTool models
-            let tools = toolsResponse.tools.map {
-                MCPTool(name: $0.name, description: $0.description)
+            var tools: [MCPTool] = []
+            for tool in toolsResponse.tools {
+                // Extract inputSchema as dictionary
+                var schemaDict: [String: Any]? = nil
+                if case let inputSchema = tool.inputSchema,
+                   let objectValue = inputSchema.objectValue {
+                    // Convert the schema to a dictionary for easier access
+                    schemaDict = convertSchemaToDict(objectValue)
+                    print("DEBUG: Tool '\(tool.name)' has schema: \(objectValue)")
+                } else {
+                    print("DEBUG: Tool '\(tool.name)' has NO SCHEMA")
+                }
+                
+                tools.append(MCPTool(name: tool.name, description: tool.description, inputSchema: schemaDict))
             }
             
             // Update the tools in the UI
@@ -282,6 +302,35 @@ class ClientServerService {
             
             // Register tools with the registry
             ToolRegistry.shared.registerTools(tools)
+            
+            // Register parameter information from schemas  
+            for tool in tools {
+                if let schema = tool.inputSchema,
+                   let properties = schema["properties"] as? [String: Any] {
+                    // Extract parameter info from schema
+                    var parameterInfos: [ToolParameterInfo] = []
+                    let requiredParams = schema["required"] as? [String] ?? []
+                    
+                    for (paramName, paramDefinition) in properties {
+                        if let paramDef = paramDefinition as? [String: Any] {
+                            let type = paramDef["type"] as? String ?? "string"
+                            let description = paramDef["description"] as? String
+                            let isRequired = requiredParams.contains(paramName)
+                            
+                            parameterInfos.append(ToolParameterInfo(
+                                name: paramName,
+                                isRequired: isRequired,
+                                type: type,
+                                description: description
+                            ))
+                        }
+                    }
+                    
+                    // Register the parameter info
+                    ToolRegistry.shared.registerParameterInfo(for: tool.name, parameters: parameterInfos)
+                    print("DEBUG: Registered \(parameterInfos.count) parameters for tool '\(tool.name)'")
+                }
+            }
             
             await messageHandler?.addMessage(content: "Available tools: \(toolsResponse.tools.map { $0.name }.joined(separator: ", "))", isFromServer: true)
             
@@ -321,13 +370,33 @@ class ClientServerService {
         let argumentName = ToolRegistry.shared.getParameterName(for: name)
         let argumentValue = text
         
-        // Add JSON-RPC debug message with the appropriate parameter name
+        // Convert the argument value to the correct type
+        let typedArgumentValue = convertArgumentToCorrectType(
+            value: argumentValue,
+            for: name,
+            parameter: argumentName
+        )
+        
+        // Format the argument value for display
+        let displayValue: String
+        switch typedArgumentValue {
+        case .int(let intVal):
+            displayValue = "\(intVal)"
+        case .bool(let boolVal):
+            displayValue = "\(boolVal)"
+        case .string(let stringVal):
+            displayValue = "\"\(stringVal)\""
+        default:
+            displayValue = "\"\(typedArgumentValue)\""
+        }
+        
+        // Add JSON-RPC debug message with the appropriate parameter name and type
         let paramSourceInfo = ToolRegistry.shared.getParameterSource(for: name)
         let callToolJson = """
         [→] JSON-RPC: callTool(
           "name": "\(name)",
           "arguments": {
-            "\(argumentName)": "\(argumentValue)" \(paramSourceInfo)
+            "\(argumentName)": \(displayValue) \(paramSourceInfo)
           }
         )
         """
@@ -337,6 +406,20 @@ class ClientServerService {
         if Bool.random() { // Only do this occasionally to avoid duplication
             // Use JSONFormatter to create a properly formatted JSON-RPC request
             let id = UUID().uuidString
+            
+            // Convert Value to the appropriate JSON type for display
+            let jsonArgumentValue: Any
+            switch typedArgumentValue {
+            case .int(let intVal):
+                jsonArgumentValue = intVal
+            case .bool(let boolVal):
+                jsonArgumentValue = boolVal
+            case .string(let stringVal):
+                jsonArgumentValue = stringVal
+            default:
+                jsonArgumentValue = "\(typedArgumentValue)"
+            }
+            
             let requestObj: [String: Any] = [
                 "jsonrpc": "2.0",
                 "id": id,
@@ -344,7 +427,7 @@ class ClientServerService {
                 "params": [
                     "name": name,
                     "arguments": [
-                        argumentName: argumentValue
+                        argumentName: jsonArgumentValue
                     ]
                 ]
             ]
@@ -360,10 +443,10 @@ class ClientServerService {
         }
         
         do {
-            // Call the tool with the appropriate parameter name
+            // Call the tool with the appropriate parameter name and type based on the converted value
             let (content, isError) = try await client.callTool(
                 name: name,
-                arguments: [(argumentName): .string(argumentValue)]
+                arguments: [(argumentName): typedArgumentValue]
             )
             
             // Format content for debug display using JSONFormatter
@@ -503,6 +586,114 @@ class ClientServerService {
     }
     
     // MARK: - Cleanup
+    
+    // MARK: - Argument Type Conversion
+    
+    /// Convert a string argument to the correct MCP Value type based on the tool's schema
+    private func convertArgumentToCorrectType(value: String, for toolName: String, parameter parameterName: String) -> Value {
+        print("DEBUG: Converting argument '\(value)' for tool '\(toolName)', parameter '\(parameterName)'")
+        
+        // Declare paramType at function scope
+        var paramType: String? = nil
+        
+        // Get the tool's schema to determine the parameter type
+        if let tool = ToolRegistry.shared.getAvailableTools().first(where: { $0.name == toolName }),
+           let schema = tool.inputSchema {
+            
+            // Debug the schema structure
+            print("DEBUG: Schema structure for tool '\(toolName)': \(schema)")
+            print("DEBUG: Schema keys: \(schema.keys)")
+            if let properties = schema["properties"] {
+                print("DEBUG: Properties found: \(properties)")
+            } else {
+                print("DEBUG: No 'properties' key found in schema")
+            }
+            
+            
+            // Continue to detailed debug section if initial extraction failed
+            if paramType == nil {
+                print("DEBUG: Could not extract parameter type for '\(parameterName)' from schema - checking detailed debug info")
+                
+                // Handle the array of key-value pairs format: ["type": "integer", "description": "..."]
+                print("DEBUG: Attempting to cast schema['properties'] as [String: Any]")
+                
+                // Handle MCP Value type properly
+                if let propertiesValue = schema["properties"] as? Value,
+                   let propertiesObj = propertiesValue.objectValue {
+                    print("DEBUG: Successfully got MCP Value properties: \(propertiesObj)")
+                    
+                    if let paramInfoValue = propertiesObj[parameterName] {
+                        print("DEBUG: Parameter info value type: \(type(of: paramInfoValue))")
+                        print("DEBUG: Parameter info value: \(paramInfoValue)")
+                        
+                        if let paramInfoArray = paramInfoValue.arrayValue {
+                            print("DEBUG: Got parameter info array: \(paramInfoArray)")
+                            
+                            // Look for "type" key and get the following value in MCP Value array
+                            for i in 0..<paramInfoArray.count-1 {
+                                if let key = paramInfoArray[i].stringValue, key == "type",
+                                   let type = paramInfoArray[i+1].stringValue {
+                                    paramType = type
+                                    print("DEBUG: Found type '\(type)' for parameter '\(parameterName)' from MCP Value array format")
+                                    break
+                                }
+                            }
+                        } else if let paramInfoObj = paramInfoValue.objectValue,
+                                  let typeValue = paramInfoObj["type"],
+                                  let type = typeValue.stringValue {
+                            paramType = type
+                            print("DEBUG: Found type '\(type)' for parameter '\(parameterName)' from MCP Value object format")
+                        } else {
+                            print("DEBUG: Could not cast paramInfoValue to arrayValue or objectValue")
+                        }
+                    }
+                } else {
+                    print("DEBUG: Could not cast properties to MCP Value")
+                }
+            }
+        } else {
+            print("DEBUG: No schema found for tool '\(toolName)' - using string")
+        }
+        
+        // Now check if we found a parameter type and convert accordingly
+        if let type = paramType {
+            switch type.lowercased() {
+            case "integer":
+                if let intValue = Int(value) {
+                    print("DEBUG: Successfully converted '\(value)' to integer \(intValue)")
+                    return .int(intValue)
+                }
+                // Fallback to string if conversion fails
+                print("DEBUG: Failed to convert '\(value)' to integer, using string")
+                return .string(value)
+                
+            case "number":
+                if let doubleValue = Double(value) {
+                    return .int(Int(doubleValue)) // MCP uses Int for numbers
+                }
+                // Fallback to string if conversion fails
+                return .string(value)
+                
+            case "boolean":
+                let lowerValue = value.lowercased()
+                if lowerValue == "true" || lowerValue == "1" || lowerValue == "yes" {
+                    return .bool(true)
+                } else if lowerValue == "false" || lowerValue == "0" || lowerValue == "no" {
+                    return .bool(false)
+                }
+                // Fallback to string if conversion fails
+                return .string(value)
+                
+            default:
+                // Default to string for unknown types or "string" type
+                return .string(value)
+            }
+        }
+        
+        // Fallback to string if no schema information is available
+        print("DEBUG: Falling back to string for '\(value)'")
+        return .string(value)
+    }
     
     deinit {
         // Ensure server process is terminated
