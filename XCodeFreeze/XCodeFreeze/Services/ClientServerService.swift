@@ -130,6 +130,10 @@ class ClientServerService {
         return client != nil
     }
     
+    func getToolDiscoveryService() -> ToolDiscoveryService {
+        return toolDiscoveryService
+    }
+    
     init(messageHandler: ClientServerServiceMessageHandler) {
         self.messageHandler = messageHandler
         // Set the client in tool discovery service when it's available
@@ -205,6 +209,22 @@ class ClientServerService {
     }
     
     // MARK: - Helper Methods
+    
+    /// Check if a tool requires parameters based on its schema
+    private func toolNeedsParameters(toolName: String) -> Bool {
+        guard let tool = ToolRegistry.shared.getAvailableTools().first(where: { $0.name == toolName }),
+              let schema = tool.inputSchema else {
+            // If no schema found, assume it needs parameters (safer default)
+            return true
+        }
+        
+        // Check if schema has properties or required fields
+        let hasProperties = schema["properties"] != nil
+        let hasRequired = schema["required"] != nil
+        
+        // If no properties and no required fields, the tool doesn't need parameters
+        return hasProperties || hasRequired
+    }
     
     /// Convert schema object to dictionary for easier access
     private func convertSchemaToDict(_ objectValue: [String: Any]) -> [String: Any] {
@@ -366,16 +386,28 @@ class ClientServerService {
             return
         }
         
-        // Get the appropriate parameter name for this tool
-        let argumentName = ToolRegistry.shared.getParameterName(for: name)
-        let argumentValue = text
+        // Check if tool needs parameters
+        let toolHasParameters = toolNeedsParameters(toolName: name)
         
-        // Convert the argument value to the correct type
-        let typedArgumentValue = convertArgumentToCorrectType(
-            value: argumentValue,
-            for: name,
-            parameter: argumentName
-        )
+        // Get parameter info only if tool needs parameters
+        let argumentName: String
+        let typedArgumentValue: Value
+        
+        if toolHasParameters {
+            argumentName = ToolRegistry.shared.getParameterName(for: name)
+            let argumentValue = text
+            
+            // Convert the argument value to the correct type
+            typedArgumentValue = convertArgumentToCorrectType(
+                value: argumentValue,
+                for: name,
+                parameter: argumentName
+            )
+        } else {
+            // For tools with no parameters, use empty parameters
+            argumentName = ""
+            typedArgumentValue = .string("")
+        }
         
         // Format the argument value for display
         let displayValue: String
@@ -443,11 +475,20 @@ class ClientServerService {
         }
         
         do {
-            // Call the tool with the appropriate parameter name and type based on the converted value
-            let (content, isError) = try await client.callTool(
-                name: name,
-                arguments: [(argumentName): typedArgumentValue]
-            )
+            // Call the tool with appropriate arguments
+            let (content, isError) = if toolHasParameters {
+                // Call with parameters
+                try await client.callTool(
+                    name: name,
+                    arguments: [(argumentName): typedArgumentValue]
+                )
+            } else {
+                // Call with no parameters
+                try await client.callTool(
+                    name: name,
+                    arguments: [:]
+                )
+            }
             
             // Format content for debug display using JSONFormatter
             let contentJson = JSONFormatter.formatArray(content) { item in

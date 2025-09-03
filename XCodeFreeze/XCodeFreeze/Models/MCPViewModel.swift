@@ -190,6 +190,18 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     func initializeAI() async {
         let aiService = await AIService.shared
         await aiService.fetchAvailableModels()
+        
+        // Set up MCP tool executor callback
+        await aiService.setMCPToolExecutor { [weak self] toolName, arguments in
+            guard let self = self else { return nil }
+            
+            // Use ToolDiscoveryService to execute the tool and get the result
+            if case let toolDiscovery = self.clientServerService.getToolDiscoveryService() {
+                return await toolDiscovery.callTool(name: toolName, text: arguments)
+            } else {
+                return "Error: Tool discovery service not available"
+            }
+        }
     }
     
     // MARK: - MCP Integration Helpers
@@ -227,17 +239,53 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
                 // Show what we're about to execute
                 await addMessage(content: "🔧 Executing: \(tool.name)", isFromServer: true)
                 
-                // Execute the MCP tool
-                await callTool(name: tool.name, text: "")
-                
-                // Note: In a more sophisticated implementation, we would:
-                // 1. Parse the AI response for specific arguments
-                // 2. Extract parameters for the tool call
-                // 3. Handle multiple tool calls
-                // 4. Send results back to AI for further processing
+                // Execute the MCP tool and get results
+                let toolDiscovery = clientServerService.getToolDiscoveryService()
+                if let toolResult = await toolDiscovery.callTool(name: tool.name, text: "") {
+                    // Send the tool result back to AI for processing
+                    await sendToolResultToAI(toolResult: toolResult, toolName: tool.name, senderName: senderName)
+                } else {
+                    await addMessage(content: "❌ Tool execution failed", isFromServer: true)
+                }
                 
                 break // Execute only first found tool for now
             }
+        }
+    }
+    
+    /// Send MCP tool results back to AI for processing and response
+    private func sendToolResultToAI(toolResult: String, toolName: String, senderName: String) async {
+        // Create a context message for the AI about the tool execution
+        let contextMessage = """
+        Tool execution result for \(toolName):
+
+        \(toolResult)
+
+        Based on this data and our conversation, please provide a helpful response to the user.
+        """
+        
+        // Add the tool result as a system/tool message to maintain conversation context
+        // This ensures the AI remembers the full conversation when processing the result
+        let aiService = await AIService.shared
+        
+        // Add tool execution message to AI's conversation history
+        let toolResultMessage = ChatCompletionMessage(role: "system", content: contextMessage)
+        await MainActor.run {
+            // Add to AI service conversation history so it remembers context
+            aiService.conversationHistory.append(toolResultMessage)
+        }
+        
+        // Now ask AI to respond based on the tool result and conversation history
+        let currentTools = await MainActor.run { availableTools }
+        let followUpMessage = "Please respond to the user based on the tool execution results above."
+        
+        if await aiService.sendMessage(followUpMessage, includeThinking: false, availableTools: currentTools) != nil {
+            // The AI response is already added to chat by sendMessage, so we don't need to add it again
+            // Just log success
+            print("AI processed tool result successfully")
+        } else {
+            // Fallback: show raw results if AI fails
+            await addMessage(content: "Tool result: \(toolResult)", isFromServer: true)
         }
     }
     

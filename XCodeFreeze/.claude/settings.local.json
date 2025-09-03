@@ -8,7 +8,9 @@
       "WebSearch",
       "Bash(git commit:*)",
       "mcp__xcf-server__xcf",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "mcp__xcf-server__read_file",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

@@ -170,7 +170,7 @@ struct JSONHeaderView: View {
                 LazyVStack(alignment: .leading, spacing: 0) {
                     ForEach(aiService.availableModels, id: \.id) { model in
                         Button(action: {
-                            aiService.selectedModel = model
+                            aiService.setSelectedModel(model)
                             showModelPicker = false
                         }) {
                             HStack {

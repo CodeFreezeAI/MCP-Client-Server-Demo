@@ -8,7 +8,7 @@ struct MessageView: View {
         VStack(alignment: .leading, spacing: 2) {
             // Sender label outside the bubble
             Text(message.sender)
-                .fontWeight(.semibold)
+                .fontWeight(message.sender == "You" ? .bold : .semibold)
                 .font(.system(size: 14))
                 .foregroundColor(senderColor)
                 .padding(.leading, 4)
@@ -32,13 +32,14 @@ struct MessageView: View {
     // Determine sender color based on the sender name
     private var senderColor: Color {
         if message.sender == "Server" {
-            return .blue
+            return .yellow
         } else if message.sender == "You" {
-            return .black
+            return .green
         } else if message.sender == "Client" {
             return Color(red: 0.1, green: 0.7, blue: 0.1)
         } else {
-            return .primary
+            // LLM names (like "Gpt-Oss:20B", "Qwen3-Coder", etc.) get orange color
+            return .orange
         }
     }
 }
