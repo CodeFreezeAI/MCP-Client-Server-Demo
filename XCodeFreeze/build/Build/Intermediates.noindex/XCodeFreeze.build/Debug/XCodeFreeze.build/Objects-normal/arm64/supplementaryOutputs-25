@@ -1,0 +1,18 @@
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/MessageView.swift":
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageView.swiftconstvalues"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageView.dia"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageView.o"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageView.d"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageView.swiftdeps"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Models/AIModels.swift":
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModels.swiftconstvalues"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModels.dia"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModels.swiftdeps"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModels.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModels.o"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/MessageFormatService.swift":
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageFormatService.swiftdeps"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageFormatService.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageFormatService.o"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageFormatService.dia"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MessageFormatService.swiftconstvalues"

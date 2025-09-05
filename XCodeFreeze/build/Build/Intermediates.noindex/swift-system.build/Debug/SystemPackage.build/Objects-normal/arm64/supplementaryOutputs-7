@@ -1,0 +1,18 @@
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-system/Sources/System/Internals/Constants.swift":
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Constants.dia"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Constants.o"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Constants.d"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Constants.swiftdeps"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Constants.swiftconstvalues"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-system/Sources/System/Internals/Mocking.swift":
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Mocking.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Mocking.dia"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Mocking.o"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Mocking.d"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Mocking.swiftconstvalues"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-system/Sources/System/Internals/Exports.swift":
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Exports.swiftdeps"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Exports.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Exports.o"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Exports.dia"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/Exports.swiftconstvalues"

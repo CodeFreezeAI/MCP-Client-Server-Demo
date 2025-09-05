@@ -1,0 +1,18 @@
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/MCPAIIntegrationService.swift":
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MCPAIIntegrationService.swiftconstvalues"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MCPAIIntegrationService.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MCPAIIntegrationService.dia"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MCPAIIntegrationService.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/MCPAIIntegrationService.o"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/Components/InputBarView.swift":
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/InputBarView.o"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/InputBarView.swiftconstvalues"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/InputBarView.swiftdeps"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/InputBarView.d"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/InputBarView.dia"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/LoggingService.swift":
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/LoggingService.d"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/LoggingService.swiftdeps"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/LoggingService.o"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/LoggingService.swiftconstvalues"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/LoggingService.dia"

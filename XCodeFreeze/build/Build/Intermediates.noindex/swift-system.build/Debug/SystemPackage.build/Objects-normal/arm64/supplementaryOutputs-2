@@ -1,0 +1,18 @@
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-system/Sources/System/FileHelpers.swift":
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileHelpers.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileHelpers.dia"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileHelpers.swiftconstvalues"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileHelpers.o"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileHelpers.d"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-system/Sources/System/FileOperations.swift":
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileOperations.swiftdeps"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileOperations.o"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileOperations.dia"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileOperations.swiftconstvalues"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FileOperations.d"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-system/Sources/System/FilePath/FilePath.swift":
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FilePath.dia"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FilePath.swiftconstvalues"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FilePath.swiftdeps"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FilePath.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/swift-system.build/Debug/SystemPackage.build/Objects-normal/arm64/FilePath.o"

@@ -1,0 +1,208 @@
+{
+  "" : {
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/MCP-master.dia",
+    "emit-module-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/MCP-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/MCP-master-emit-module.dia",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/MCP-master.swiftdeps"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Error.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Error~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/ID.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/ID~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Lifecycle.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Lifecycle~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Messages.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Messages~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Transport.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Transport~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Transports/HTTPClientTransport.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/HTTPClientTransport~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Transports/InMemoryTransport.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/InMemoryTransport~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Transports/NetworkTransport.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/NetworkTransport~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Transports/StdioTransport.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/StdioTransport~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/UnitInterval.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/UnitInterval~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Utilities/Ping.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Ping~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Value.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Value~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Base/Versioning.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Versioning~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Client/Client.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Client~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Client/Sampling.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Sampling~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Extensions/Data+Extensions.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Data+Extensions~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Server/Prompts.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Prompts~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Server/Resources.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Resources~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Server/Server.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Server~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/swift-sdk/Sources/MCP/Server/Tools.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.dia",
+    "index-unit-output-path" : "/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/mcp-swift-sdk.build/Debug/MCP.build/Objects-normal/arm64/Tools~partial.swiftmodule"
+  }
+}

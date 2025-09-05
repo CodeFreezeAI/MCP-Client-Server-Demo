@@ -148,9 +148,35 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
         // Add user message to chat
         await addMessage(content: content, isFromServer: false)
         
+        // FIRST: Check if USER is directly requesting a tool (like Cursor AI/Claude Code)
+        let currentTools = await MainActor.run { availableTools }
+        
+        // Check for exact tool match OR tool command
+        for tool in currentTools {
+            let contentLower = content.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            let toolLower = tool.name.lowercased()
+            
+            // Direct tool invocation patterns
+            if contentLower == toolLower ||
+               contentLower == "use \(toolLower)" ||
+               contentLower == "use_\(toolLower)" ||
+               contentLower.hasPrefix("\(toolLower) ") ||
+               contentLower.hasPrefix("run \(toolLower)") ||
+               contentLower.hasPrefix("execute \(toolLower)") ||
+               contentLower.hasPrefix("call \(toolLower)") {
+                
+                // Extract parameters if any
+                let params = extractParametersFromUserInput(content, toolName: tool.name)
+                
+                // Execute tool directly
+                await addMessage(content: "🚀 Executing: \(tool.name) \(params)", isFromServer: true)
+                await callTool(name: tool.name, text: params)
+                return // Don't send to AI, we handled it directly
+            }
+        }
+        
         // Send to AI service with available tools
         let aiService = await AIService.shared
-        let currentTools = await MainActor.run { availableTools }
         
         if let response = await aiService.sendMessage(content, includeThinking: includeThinking, availableTools: currentTools) {
             // Determine sender name based on selected model
@@ -208,49 +234,172 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     
     /// Parse AI response for tool suggestions using patterns
     private func parseAIResponseForToolSuggestions(_ response: String) async -> (String, Bool) {
-        // Only execute tools if AI explicitly says it will use a tool
-        let explicitToolPatterns = [
-            "let me use the",
-            "i'll use the", 
-            "i will use the",
-            "let me run",
-            "i'll run",
-            "i will run"
+        // AGGRESSIVE CURSOR AI / CLAUDE CODE MODE - Execute tools automatically!
+        let toolTriggerPatterns = [
+            // Explicit mentions
+            "let me", "i'll", "i will", "using",
+            "need to", "going to", "want to",
+            "should", "would", "could",
+            "let's", "checking", "looking",
+            "examining", "analyzing", "reading",
+            "opening", "viewing", "listing",
+            // Action words
+            "execute", "fetch", "retrieve", "access",
+            "examine", "check", "read", "analyze",
+            "look at", "see", "show", "view",
+            // Tool-specific triggers
+            "file", "project", "code", "directory",
+            "folder", "document", "analyze", "help"
         ]
         
         let lowerResponse = response.lowercased()
-        let containsExplicitToolRequest = explicitToolPatterns.contains { pattern in
+        
+        // Check if ANY tool is mentioned in the response
+        let currentTools = await MainActor.run { availableTools }
+        let mentionsAnyTool = currentTools.contains { tool in
+            // Check for tool name or common variations
+            let toolLower = tool.name.lowercased()
+            return lowerResponse.contains(toolLower) ||
+                   lowerResponse.contains(toolLower.replacingOccurrences(of: "_", with: " "))
+        }
+        
+        // Check for trigger patterns
+        let containsToolTrigger = toolTriggerPatterns.contains { pattern in
             lowerResponse.contains(pattern)
         }
         
-        // DISABLED: Don't auto-execute based on tool name mentions alone
-        // This was too aggressive and executed tools when AI was just discussing them
+        // DISABLE aggressive mode - it's executing wrong tools!
+        // Only execute if AI EXPLICITLY says it will use a tool
+        let shouldExecute = false  // DISABLED - let the AI decide via tool_calls!
         
-        return (response, containsExplicitToolRequest)
+        return (response, shouldExecute)
     }
     
     /// Execute tools based on AI suggestions
     private func executeToolsFromAISuggestion(_ aiResponse: String, senderName: String) async {
-        // Simple pattern matching to extract tool commands from AI response
+        // INTELLIGENT parameter extraction from AI response
         let currentTools = await MainActor.run { availableTools }
+        let lowerResponse = aiResponse.lowercased()
+        
+        // Execute ALL mentioned tools (like Cursor AI does)
+        var toolsExecuted = 0
         
         for tool in currentTools {
-            if aiResponse.lowercased().contains(tool.name.lowercased()) {
-                // Show what we're about to execute
-                await addMessage(content: "🔧 Executing: \(tool.name)", isFromServer: true)
+            let toolNameLower = tool.name.lowercased()
+            let toolNameSpaced = toolNameLower.replacingOccurrences(of: "_", with: " ")
+            
+            if lowerResponse.contains(toolNameLower) || lowerResponse.contains(toolNameSpaced) {
+                // Extract parameters intelligently from the AI response
+                let parameters = extractParametersForTool(tool: tool, from: aiResponse)
                 
-                // Execute the MCP tool and get results
+                // Show what we're executing with parameters
+                let execMsg = parameters.isEmpty ? 
+                    "🔧 Executing: \(tool.name)" : 
+                    "🔧 Executing: \(tool.name) \(parameters)"
+                await addMessage(content: execMsg, isFromServer: true)
+                
+                // Execute the MCP tool
                 let toolDiscovery = clientServerService.getToolDiscoveryService()
-                if let toolResult = await toolDiscovery.callTool(name: tool.name, text: "") {
-                    // Send the tool result back to AI for processing
-                    await sendToolResultToAI(toolResult: toolResult, toolName: tool.name, senderName: senderName)
+                if let toolResult = await toolDiscovery.callTool(name: tool.name, text: parameters) {
+                    // Add result to chat
+                    await addMessage(content: toolResult, isFromServer: true)
+                    toolsExecuted += 1
+                    
+                    // If we executed tools, send combined results back to AI
+                    if toolsExecuted == 1 {
+                        // For first tool, send result back to AI for analysis
+                        await sendToolResultToAI(toolResult: toolResult, toolName: tool.name, senderName: senderName)
+                    }
                 } else {
-                    await addMessage(content: "❌ Tool execution failed", isFromServer: true)
+                    await addMessage(content: "❌ Failed to execute: \(tool.name)", isFromServer: true)
                 }
-                
-                break // Execute only first found tool for now
             }
         }
+        
+        if toolsExecuted == 0 {
+            // No specific tools found, but AI mentioned tool-like actions
+            // Try to be smart about what they want
+            await addMessage(content: "ℹ️ No specific tools identified. Please specify which tool to use.", isFromServer: true)
+        }
+    }
+    
+    /// Extract parameters from user's direct input
+    private func extractParametersFromUserInput(_ input: String, toolName: String) -> String {
+        let toolLower = toolName.lowercased()
+        let inputLower = input.lowercased()
+        
+        // Remove the tool name and common prefixes
+        var params = input
+        let prefixes = [
+            "\(toolName) ", "use \(toolName) ", "use_\(toolName) ",
+            "run \(toolName) ", "execute \(toolName) ", "call \(toolName) ",
+            "\(toolLower) ", "use \(toolLower) ", "use_\(toolLower) ",
+            "run \(toolLower) ", "execute \(toolLower) ", "call \(toolLower) "
+        ]
+        
+        for prefix in prefixes {
+            if inputLower.hasPrefix(prefix) {
+                params = String(input.dropFirst(prefix.count))
+                break
+            }
+        }
+        
+        // If we stripped everything, return empty
+        if params == toolName || params == toolLower {
+            return ""
+        }
+        
+        return params.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    /// Extract parameters for a tool from AI response text
+    private func extractParametersForTool(tool: MCPTool, from response: String) -> String {
+        // Look for common parameter patterns in the response
+        
+        // Check for file paths (common for read_file, open_doc, etc.)
+        let filePathPattern = #"[\/\w\-\.]+\.(swift|json|plist|txt|md|h|m|mm|cpp|c|js|ts|py|rb|go|rs|xml|html|css)"#
+        if let regex = try? NSRegularExpression(pattern: filePathPattern, options: .caseInsensitive) {
+            let range = NSRange(response.startIndex..., in: response)
+            if let match = regex.firstMatch(in: response, range: range) {
+                return String(response[Range(match.range, in: response)!])
+            }
+        }
+        
+        // Check for quoted strings (often parameters)
+        if response.contains("\"") {
+            let components = response.components(separatedBy: "\"")
+            if components.count >= 3 {
+                return components[1] // Return first quoted string
+            }
+        }
+        
+        // Check for directory paths
+        if tool.name.contains("dir") || tool.name.contains("folder") {
+            let dirPattern = #"[\/\w\-\.]+"#
+            if let regex = try? NSRegularExpression(pattern: dirPattern) {
+                let range = NSRange(response.startIndex..., in: response)
+                if let match = regex.firstMatch(in: response, range: range) {
+                    let path = String(response[Range(match.range, in: response)!])
+                    if path.hasPrefix("/") {
+                        return path
+                    }
+                }
+            }
+        }
+        
+        // Check for numbers (for select_project, line numbers, etc.)
+        if tool.name.contains("select") || tool.name.contains("line") {
+            let numberPattern = #"\d+"#
+            if let regex = try? NSRegularExpression(pattern: numberPattern) {
+                let range = NSRange(response.startIndex..., in: response)
+                if let match = regex.firstMatch(in: response, range: range) {
+                    return String(response[Range(match.range, in: response)!])
+                }
+            }
+        }
+        
+        // No parameters found
+        return ""
     }
     
     /// Send MCP tool results back to AI for processing and response

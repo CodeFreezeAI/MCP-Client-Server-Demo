@@ -1,0 +1,88 @@
+{
+  "source": "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/Components/JSONHeaderView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Configuration Required",
+        "location": {
+          "startingColumn": 16,
+          "startingLine": 122
+        }
+      },
+      {
+        "comment": "",
+        "key": "Path to MCP JSON config file",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 19
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 23
+        }
+      },
+      {
+        "comment": "",
+        "key": "New",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disconnect",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "IP:Port",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "OK",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "Please select or create a JSON configuration file before connecting.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 125
+        }
+      },
+      {
+        "comment": "",
+        "key": "Select AI Model",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 165
+        }
+      }
+    ]
+  },
+  "version": 1
+}

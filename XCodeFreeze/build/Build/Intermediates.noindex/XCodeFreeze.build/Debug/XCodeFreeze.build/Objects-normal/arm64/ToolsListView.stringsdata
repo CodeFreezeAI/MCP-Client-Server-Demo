@@ -1,0 +1,16 @@
+{
+  "source": "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/Components/ToolsListView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Available Tools",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 20
+        }
+      }
+    ]
+  },
+  "version": 1
+}

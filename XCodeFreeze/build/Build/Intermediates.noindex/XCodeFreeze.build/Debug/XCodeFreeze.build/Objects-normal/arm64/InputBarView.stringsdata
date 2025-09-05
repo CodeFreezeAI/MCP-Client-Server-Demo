@@ -1,0 +1,72 @@
+{
+  "source": "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/Components/InputBarView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Ask me anything or enter MCP commands...",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "AI Thinking...",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 71
+        }
+      },
+      {
+        "comment": "",
+        "key": "Clear",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Send",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "Debug",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 117
+        }
+      },
+      {
+        "comment": "",
+        "key": "Test server communication by sending a ping request",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 126
+        }
+      },
+      {
+        "comment": "",
+        "key": "Diagnostics",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 128
+        }
+      },
+      {
+        "comment": "",
+        "key": "Check client and transport state",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 137
+        }
+      }
+    ]
+  },
+  "version": 1
+}

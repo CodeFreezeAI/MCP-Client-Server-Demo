@@ -1,17 +1,30 @@
 import Foundation
 
 // MARK: - Tool Info Models
-struct MCPTool {
-    let name: String
-    let description: String
-    let inputSchema: [String: Any]?
+public struct MCPTool {
+    public let name: String
+    public let description: String
+    public let inputSchema: [String: Any]?
+    
+    public init(name: String, description: String, inputSchema: [String: Any]? = nil) {
+        self.name = name
+        self.description = description
+        self.inputSchema = inputSchema
+    }
 }
 
-struct ToolParameterInfo {
-    let name: String
-    let isRequired: Bool
-    let type: String
-    let description: String?
+public struct ToolParameterInfo {
+    public let name: String
+    public let isRequired: Bool
+    public let type: String
+    public let description: String?
+    
+    public init(name: String, isRequired: Bool, type: String, description: String? = nil) {
+        self.name = name
+        self.isRequired = isRequired
+        self.type = type
+        self.description = description
+    }
 }
 
 // MARK: - Tool Registry (Singleton)

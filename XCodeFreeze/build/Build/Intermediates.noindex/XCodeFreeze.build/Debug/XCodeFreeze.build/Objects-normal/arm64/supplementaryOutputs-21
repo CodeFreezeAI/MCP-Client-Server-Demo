@@ -1,0 +1,24 @@
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/CommandService.swift":
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/CommandService.d"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/CommandService.swiftdeps"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/CommandService.swiftconstvalues"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/CommandService.o"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/CommandService.dia"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/ClientServerService.swift":
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ClientServerService.o"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ClientServerService.swiftconstvalues"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ClientServerService.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ClientServerService.dia"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ClientServerService.d"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/ConfigFileService.swift":
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ConfigFileService.o"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ConfigFileService.d"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ConfigFileService.swiftconstvalues"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ConfigFileService.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ConfigFileService.dia"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/Components/AIModelSelectorView.swift":
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModelSelectorView.swiftconstvalues"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModelSelectorView.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModelSelectorView.dia"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModelSelectorView.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/AIModelSelectorView.o"

@@ -1,0 +1,18 @@
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/XCodeFreezeApp.swift":
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/XCodeFreezeApp.d"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/XCodeFreezeApp.dia"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/XCodeFreezeApp.o"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/XCodeFreezeApp.swiftdeps"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/XCodeFreezeApp.swiftconstvalues"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Views/ContentView.swift":
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ContentView.o"
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ContentView.d"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ContentView.swiftconstvalues"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ContentView.dia"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ContentView.swiftdeps"
+"/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/XCodeFreeze/Services/ToolRegistry.swift":
+  dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ToolRegistry.d"
+  object: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ToolRegistry.o"
+  swift-dependencies: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ToolRegistry.swiftdeps"
+  diagnostics: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ToolRegistry.dia"
+  const-values: "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/XCodeFreeze.build/Debug/XCodeFreeze.build/Objects-normal/arm64/ToolRegistry.swiftconstvalues"

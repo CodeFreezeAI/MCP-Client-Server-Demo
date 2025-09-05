@@ -121,7 +121,14 @@ class AIService: ObservableObject {
         
         do {
             let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted // For debugging
             let jsonData = try encoder.encode(request)
+            
+            // DEBUG: Log what we're sending
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("🔧 DEBUG: Sending to Ollama:")
+                print(jsonString)
+            }
             
             var urlRequest = URLRequest(url: url)
             urlRequest.httpMethod = "POST"
@@ -271,7 +278,14 @@ Be helpful, accurate, and concise in your responses.
         
         do {
             let encoder = JSONEncoder()
+            encoder.outputFormatting = .prettyPrinted // For debugging
             let jsonData = try encoder.encode(request)
+            
+            // DEBUG: Log what we're sending
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("🔧 DEBUG: Sending to Ollama:")
+                print(jsonString)
+            }
             
             var urlRequest = URLRequest(url: url)
             urlRequest.httpMethod = "POST"
@@ -282,16 +296,25 @@ Be helpful, accurate, and concise in your responses.
             
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
+                    // DEBUG: Log response
+                    if let responseString = String(data: data, encoding: .utf8) {
+                        print("🔧 DEBUG: Response from Ollama:")
+                        print(responseString)
+                    }
+                    
                     let decoder = JSONDecoder()
                     let completionResponse = try decoder.decode(ChatCompletionResponse.self, from: data)
                     
                     // Handle tool calls if present
                     if let message = completionResponse.choices.first?.message {
+                        print("🔧 DEBUG: Message has tool_calls: \(message.toolCalls != nil)")
                         if let toolCalls = message.toolCalls, !toolCalls.isEmpty {
+                            print("🚀 AI wants to call \(toolCalls.count) tool(s)")
                             // AI wants to call tools - execute them and continue conversation
                             return await handleToolCalls(toolCalls, messages: messages, tools: tools)
                         } else {
                             // Normal response without tool calls
+                            print("📝 Normal response (no tool calls)")
                             return message.content
                         }
                     }
@@ -410,56 +433,50 @@ Be helpful, accurate, and concise in your responses.
     }
     
     private func createParametersFromMCPTool(_ mcpTool: MCPTool) -> AIFunctionParameters? {
-        // Extract actual schema information from MCP tool if available
-        guard let inputSchema = mcpTool.inputSchema else {
-            // Fallback to basic text parameter for tools without schemas
-            return AIFunctionParameters(
-                type: "object",
-                properties: [
-                    "text": AIPropertyDefinition(
-                        type: "string",
-                        description: "Input text for the tool",
+        // Return the schema directly as-is if it exists
+        // The schema is already in the correct format from the MCP server
+        if let inputSchema = mcpTool.inputSchema {
+            // The schema should already be properly formatted after our fix in ClientServerService
+            print("🔧 DEBUG: Tool \(mcpTool.name) has schema: \(inputSchema)")
+            
+            // Extract properties and required fields directly
+            let properties = inputSchema["properties"] as? [String: Any] ?? [:]
+            let required = inputSchema["required"] as? [String] ?? []
+            
+            print("🔧 DEBUG: Tool \(mcpTool.name) properties extracted: \(properties.keys.joined(separator: ", "))")
+            print("🔧 DEBUG: Tool \(mcpTool.name) required fields: \(required.joined(separator: ", "))")
+            
+            // Convert properties to AIPropertyDefinition format
+            var aiProperties: [String: AIPropertyDefinition] = [:]
+            for (propName, propValue) in properties {
+                if let propDict = propValue as? [String: Any] {
+                    let type = propDict["type"] as? String ?? "string"
+                    let description = propDict["description"] as? String
+                    aiProperties[propName] = AIPropertyDefinition(
+                        type: type,
+                        description: description,
                         enumValues: nil
                     )
-                ],
-                required: ["text"]
-            )
-        }
-        
-        // Extract properties from MCP schema
-        guard let propertiesDict = inputSchema["properties"] as? [String: Any] else {
-            // No properties defined, use empty parameters
-            return AIFunctionParameters(
-                type: "object",
-                properties: [:],
-                required: []
-            )
-        }
-        
-        var aiProperties: [String: AIPropertyDefinition] = [:]
-        
-        // Convert each MCP property to AI property definition
-        for (propertyName, propertyValue) in propertiesDict {
-            if let propDict = propertyValue as? [String: Any] {
-                let type = propDict["type"] as? String ?? "string"
-                let description = propDict["description"] as? String
-                let enumValues = propDict["enum"] as? [String]
-                
-                aiProperties[propertyName] = AIPropertyDefinition(
-                    type: type,
-                    description: description,
-                    enumValues: enumValues
-                )
+                    print("🔧 DEBUG: Added parameter '\(propName)' of type '\(type)' to tool \(mcpTool.name)")
+                }
             }
+            
+            let params = AIFunctionParameters(
+                type: "object",
+                properties: aiProperties,
+                required: required
+            )
+            
+            print("🔧 DEBUG: Final parameters for \(mcpTool.name): \(aiProperties.count) properties")
+            return params
         }
         
-        // Extract required fields
-        let required = inputSchema["required"] as? [String] ?? []
-        
+        // No schema - return minimal parameters
+        print("🔧 DEBUG: Tool \(mcpTool.name) has NO schema, using empty parameters")
         return AIFunctionParameters(
             type: "object",
-            properties: aiProperties,
-            required: required
+            properties: [:],
+            required: []
         )
     }
     

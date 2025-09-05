@@ -227,9 +227,41 @@ class ClientServerService {
     }
     
     /// Convert schema object to dictionary for easier access
-    private func convertSchemaToDict(_ objectValue: [String: Any]) -> [String: Any] {
-        // The schema is already in dictionary format, just return it
-        return objectValue
+    private func convertSchemaToDict(_ objectValue: [String: Value]) -> [String: Any] {
+        // Convert Value objects to their actual values recursively
+        var result: [String: Any] = [:]
+        
+        for (key, value) in objectValue {
+            result[key] = convertValueToAny(value)
+        }
+        
+        return result
+    }
+    
+    /// Convert a Value enum to a plain Swift type
+    private func convertValueToAny(_ value: Value) -> Any {
+        switch value {
+        case .null:
+            return NSNull()
+        case .bool(let b):
+            return b
+        case .int(let i):
+            return i
+        case .double(let d):
+            return d
+        case .string(let s):
+            return s
+        case .data(_, let data):
+            return data
+        case .array(let arr):
+            return arr.map { convertValueToAny($0) }
+        case .object(let obj):
+            var dict: [String: Any] = [:]
+            for (key, val) in obj {
+                dict[key] = convertValueToAny(val)
+            }
+            return dict
+        }
     }
     
     // MARK: - Client Initialization
@@ -526,7 +558,8 @@ class ClientServerService {
             // Extract text response
             for item in content {
                 if case .text(let responseText) = item {
-                    await messageHandler?.addMessage(content: String(format: MCPConstants.Messages.Info.serverResponse, responseText), isFromServer: true)
+                    // Show the actual response from the server without wrapping
+                    await messageHandler?.addMessage(content: responseText, isFromServer: true)
                     
                     //MARK: - Subtools offline If this was the help command or list tools command, update available tools
 //                    if name == MCPConstants.Commands.serverPrefixedCommand(MCPConstants.Commands.help) || name == MCPConstants.Commands.help ||

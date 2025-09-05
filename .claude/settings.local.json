@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__xcf-server__list_projects",
+      "mcp__xcf-server__select_project",
+      "mcp__xcf-server__build_project",
+      "Bash(xcodebuild:*)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "mcp__xcf-server__run_project"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

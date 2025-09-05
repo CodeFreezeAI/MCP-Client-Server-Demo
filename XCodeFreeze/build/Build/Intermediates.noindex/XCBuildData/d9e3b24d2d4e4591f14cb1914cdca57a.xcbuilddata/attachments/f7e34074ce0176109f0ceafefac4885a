@@ -1,0 +1,38 @@
+{
+  "" : {
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource-master.dia",
+    "emit-module-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource-master-emit-module.dia",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource-master.swiftdeps"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/eventsource/Sources/EventSource/AsyncEventsSequence.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.dia",
+    "index-unit-output-path" : "/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncEventsSequence~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/eventsource/Sources/EventSource/AsyncSequence+Events.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.dia",
+    "index-unit-output-path" : "/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/AsyncSequence+Events~partial.swiftmodule"
+  },
+  "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/SourcePackages/checkouts/eventsource/Sources/EventSource/EventSource.swift" : {
+    "const-values" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.swiftconstvalues",
+    "dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.d",
+    "diagnostics" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.dia",
+    "index-unit-output-path" : "/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.o",
+    "llvm-bc" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.bc",
+    "object" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.o",
+    "swift-dependencies" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource.swiftdeps",
+    "swiftmodule" : "/Users/toddbruss/Documents/GitHub/MCP-Client-Server-Demo/XCodeFreeze/build/Build/Intermediates.noindex/EventSource.build/Debug/EventSource.build/Objects-normal/arm64/EventSource~partial.swiftmodule"
+  }
+}

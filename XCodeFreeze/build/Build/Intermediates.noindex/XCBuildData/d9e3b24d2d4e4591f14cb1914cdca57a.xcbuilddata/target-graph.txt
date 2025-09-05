@@ -1,0 +1,24 @@
+Target dependency graph (10 targets)
+Target 'XCodeFreeze' in project 'XCodeFreeze'
+➜ Explicit dependency on target 'MCP' in project 'mcp-swift-sdk'
+Target 'MCP' in project 'mcp-swift-sdk'
+➜ Explicit dependency on target 'MCP' in project 'mcp-swift-sdk'
+➜ Explicit dependency on target 'SystemPackage' in project 'swift-system'
+➜ Explicit dependency on target 'Logging' in project 'swift-log'
+➜ Explicit dependency on target 'EventSource' in project 'EventSource'
+Target 'MCP' in project 'mcp-swift-sdk'
+➜ Explicit dependency on target 'SystemPackage' in project 'swift-system'
+➜ Explicit dependency on target 'Logging' in project 'swift-log'
+➜ Explicit dependency on target 'EventSource' in project 'EventSource'
+Target 'EventSource' in project 'EventSource'
+➜ Explicit dependency on target 'EventSource' in project 'EventSource'
+Target 'EventSource' in project 'EventSource' (no dependencies)
+Target 'Logging' in project 'swift-log'
+➜ Explicit dependency on target 'Logging' in project 'swift-log'
+Target 'Logging' in project 'swift-log' (no dependencies)
+Target 'SystemPackage' in project 'swift-system'
+➜ Explicit dependency on target 'SystemPackage' in project 'swift-system'
+➜ Explicit dependency on target 'CSystem' in project 'swift-system'
+Target 'SystemPackage' in project 'swift-system'
+➜ Explicit dependency on target 'CSystem' in project 'swift-system'
+Target 'CSystem' in project 'swift-system' (no dependencies)
