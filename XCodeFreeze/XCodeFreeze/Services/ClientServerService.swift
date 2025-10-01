@@ -211,7 +211,7 @@ class ClientServerService {
     // MARK: - Helper Methods
     
     /// Check if a tool requires parameters based on its schema
-    private func toolNeedsParameters(toolName: String) -> Bool {
+    internal func toolNeedsParameters(toolName: String) -> Bool {
         guard let tool = ToolRegistry.shared.getAvailableTools().first(where: { $0.name == toolName }),
               let schema = tool.inputSchema else {
             // If no schema found, assume it needs parameters (safer default)
@@ -227,7 +227,7 @@ class ClientServerService {
     }
     
     /// Convert schema object to dictionary for easier access
-    private func convertSchemaToDict(_ objectValue: [String: Value]) -> [String: Any] {
+    internal func convertSchemaToDict(_ objectValue: [String: Value]) -> [String: Any] {
         // Convert Value objects to their actual values recursively
         var result: [String: Any] = [:]
         
@@ -239,7 +239,7 @@ class ClientServerService {
     }
     
     /// Convert a Value enum to a plain Swift type
-    private func convertValueToAny(_ value: Value) -> Any {
+    internal func convertValueToAny(_ value: Value) -> Any {
         switch value {
         case .null:
             return NSNull()

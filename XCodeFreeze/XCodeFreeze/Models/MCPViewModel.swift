@@ -148,34 +148,10 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
         // Add user message to chat
         await addMessage(content: content, isFromServer: false)
         
-        // FIRST: Check if USER is directly requesting a tool (like Cursor AI/Claude Code)
+        // Get available tools for AI to use
         let currentTools = await MainActor.run { availableTools }
         
-        // Check for exact tool match OR tool command
-        for tool in currentTools {
-            let contentLower = content.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-            let toolLower = tool.name.lowercased()
-            
-            // Direct tool invocation patterns
-            if contentLower == toolLower ||
-               contentLower == "use \(toolLower)" ||
-               contentLower == "use_\(toolLower)" ||
-               contentLower.hasPrefix("\(toolLower) ") ||
-               contentLower.hasPrefix("run \(toolLower)") ||
-               contentLower.hasPrefix("execute \(toolLower)") ||
-               contentLower.hasPrefix("call \(toolLower)") {
-                
-                // Extract parameters if any
-                let params = extractParametersFromUserInput(content, toolName: tool.name)
-                
-                // Execute tool directly
-                await addMessage(content: "🚀 Executing: \(tool.name) \(params)", isFromServer: true)
-                await callTool(name: tool.name, text: params)
-                return // Don't send to AI, we handled it directly
-            }
-        }
-        
-        // Send to AI service with available tools
+        // ALWAYS send to AI service with available tools - let AI decide what to do
         let aiService = await AIService.shared
         
         if let response = await aiService.sendMessage(content, includeThinking: includeThinking, availableTools: currentTools) {
@@ -187,13 +163,10 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
                 senderName = "AI"
             }
             
-            // Check if AI is suggesting tool usage
-            let (finalResponse, shouldExecuteTools) = await parseAIResponseForToolSuggestions(response)
-            
             // Add AI response to chat
             let aiMessage = ChatMessage(
                 sender: senderName,
-                content: finalResponse,
+                content: response,
                 timestamp: Date(),
                 isFromServer: false
             )
@@ -202,10 +175,8 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
                 messages.append(aiMessage)
             }
             
-            // If AI suggested tools, execute them and continue the conversation
-            if shouldExecuteTools {
-                await executeToolsFromAISuggestion(finalResponse, senderName: senderName)
-            }
+            // Tool execution is now handled by the AI through proper tool_calls
+            // No need to parse for tool suggestions - AI will handle it
             
         } else {
             await addMessage(content: "❌ Failed to get response from AI", isFromServer: true)
@@ -221,12 +192,10 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
         await aiService.setMCPToolExecutor { [weak self] toolName, arguments in
             guard let self = self else { return nil }
             
-            // Use ToolDiscoveryService to execute the tool and get the result
-            if case let toolDiscovery = self.clientServerService.getToolDiscoveryService() {
-                return await toolDiscovery.callTool(name: toolName, text: arguments)
-            } else {
-                return "Error: Tool discovery service not available"
-            }
+            // Use ToolDiscoveryService to execute the tool with JSON arguments
+            let toolDiscovery = self.clientServerService.getToolDiscoveryService()
+            // Use the new callToolWithJSON method that handles multiple parameters
+            return await toolDiscovery.callToolWithJSON(name: toolName, jsonArguments: arguments)
         }
     }
     
@@ -234,45 +203,12 @@ class MCPViewModel: ObservableObject, ClientServerServiceMessageHandler {
     
     /// Parse AI response for tool suggestions using patterns
     private func parseAIResponseForToolSuggestions(_ response: String) async -> (String, Bool) {
-        // AGGRESSIVE CURSOR AI / CLAUDE CODE MODE - Execute tools automatically!
-        let toolTriggerPatterns = [
-            // Explicit mentions
-            "let me", "i'll", "i will", "using",
-            "need to", "going to", "want to",
-            "should", "would", "could",
-            "let's", "checking", "looking",
-            "examining", "analyzing", "reading",
-            "opening", "viewing", "listing",
-            // Action words
-            "execute", "fetch", "retrieve", "access",
-            "examine", "check", "read", "analyze",
-            "look at", "see", "show", "view",
-            // Tool-specific triggers
-            "file", "project", "code", "directory",
-            "folder", "document", "analyze", "help"
-        ]
+        // DO NOT execute tools based on patterns - let AI handle tool calls properly
+        // The AI model will use proper tool_calls when it needs to execute tools
+        // This prevents tools from being executed without AI's explicit instruction
         
-        let lowerResponse = response.lowercased()
-        
-        // Check if ANY tool is mentioned in the response
-        let currentTools = await MainActor.run { availableTools }
-        let mentionsAnyTool = currentTools.contains { tool in
-            // Check for tool name or common variations
-            let toolLower = tool.name.lowercased()
-            return lowerResponse.contains(toolLower) ||
-                   lowerResponse.contains(toolLower.replacingOccurrences(of: "_", with: " "))
-        }
-        
-        // Check for trigger patterns
-        let containsToolTrigger = toolTriggerPatterns.contains { pattern in
-            lowerResponse.contains(pattern)
-        }
-        
-        // DISABLE aggressive mode - it's executing wrong tools!
-        // Only execute if AI EXPLICITLY says it will use a tool
-        let shouldExecute = false  // DISABLED - let the AI decide via tool_calls!
-        
-        return (response, shouldExecute)
+        // Always return false for shouldExecute to prevent bypassing AI
+        return (response, false)
     }
     
     /// Execute tools based on AI suggestions

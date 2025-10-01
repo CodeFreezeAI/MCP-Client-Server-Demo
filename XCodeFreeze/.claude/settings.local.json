@@ -10,7 +10,12 @@
       "mcp__xcf-server__xcf",
       "WebFetch(domain:github.com)",
       "mcp__xcf-server__read_file",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(xcodebuild test:*)",
+      "Bash(xcodebuild:*)",
+      "Read(//Users/toddbruss/Documents/GitHub/logos/logos inkpen.ioTests/**)",
+      "Read(//Users/toddbruss/Documents/GitHub/logos/logos inkpen.io/**)",
+      "Read(//Users/toddbruss/Documents/GitHub/logos/**)"
     ],
     "deny": [],
     "ask": []

@@ -245,7 +245,7 @@ public class MCPAIIntegrationService: ObservableObject {
             "tools": tools,
             "tool_choice": "auto",
             "temperature": 0.7,
-            "max_tokens": 4000
+            "max_tokens": 25000
         ]
         
         guard let url = URL(string: "\(aiEndpoint)/chat/completions"),

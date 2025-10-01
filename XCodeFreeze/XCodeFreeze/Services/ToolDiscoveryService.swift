@@ -57,7 +57,71 @@ class ToolDiscoveryService {
         }
     }
     
-    // Call a tool and return the response content
+    // Call a tool with JSON arguments (for AI integration)
+    func callToolWithJSON(name: String, jsonArguments: String) async -> String? {
+        guard let client = clientProvider?() else {
+            return nil
+        }
+        
+        // Parse JSON arguments
+        guard let argumentsData = jsonArguments.data(using: .utf8),
+              let json = try? JSONSerialization.jsonObject(with: argumentsData) as? [String: Any] else {
+            // Fallback to single text parameter if JSON parsing fails
+            return await callTool(name: name, text: jsonArguments)
+        }
+        
+        // Convert JSON to MCP arguments
+        var mcpArguments: [String: Value] = [:]
+        for (key, value) in json {
+            if let stringValue = value as? String {
+                mcpArguments[key] = Value.string(stringValue)
+            } else if let intValue = value as? Int {
+                mcpArguments[key] = Value.int(intValue)
+            } else if let doubleValue = value as? Double {
+                mcpArguments[key] = Value.double(doubleValue)
+            } else if let boolValue = value as? Bool {
+                mcpArguments[key] = Value.bool(boolValue)
+            } else if let arrayValue = value as? [Any] {
+                // Convert array to JSON string for now
+                if let jsonData = try? JSONSerialization.data(withJSONObject: arrayValue),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    mcpArguments[key] = Value.string(jsonString)
+                }
+            } else if let dictValue = value as? [String: Any] {
+                // Convert dictionary to JSON string for now
+                if let jsonData = try? JSONSerialization.data(withJSONObject: dictValue),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+                    mcpArguments[key] = Value.string(jsonString)
+                }
+            }
+        }
+        
+        do {
+            // Call the tool with parsed arguments
+            let (content, isError) = try await client.callTool(
+                name: name,
+                arguments: mcpArguments
+            )
+            
+            // Process response
+            if isError == true {
+                return "Error from server"
+            }
+            
+            // Extract text response
+            for item in content {
+                if case .text(let responseText) = item {
+                    return responseText
+                }
+            }
+        } catch {
+            return "Error: \(error.localizedDescription)"
+        }
+        
+        return nil
+    }
+    
+    // Call a tool and return the response content (legacy single parameter version)
     func callTool(name: String, text: String) async -> String? {
         guard let client = clientProvider?() else {
             return nil

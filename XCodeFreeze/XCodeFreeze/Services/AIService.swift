@@ -113,7 +113,7 @@ class AIService: ObservableObject {
             model: selectedModel.id,
             messages: messages,
             temperature: 0.7,
-            maxTokens: 4000,
+            maxTokens: 25000,
             stream: false,
             tools: nil,
             toolChoice: nil
@@ -270,7 +270,7 @@ Be helpful, accurate, and concise in your responses.
             model: selectedModel.id,
             messages: messages,
             temperature: 0.7,
-            maxTokens: 4000,
+            maxTokens: 25000,
             stream: false,
             tools: tools,
             toolChoice: tools?.isEmpty == false ? "auto" : nil
@@ -369,44 +369,12 @@ Be helpful, accurate, and concise in your responses.
         return await sendChatCompletionWithTools(messages: updatedMessages, tools: tools)
     }
     
-    private func executeMCPTool(name: String, arguments: String) async -> String {
-        // Parse arguments (assuming JSON format from function call)
-        var toolText = ""
+    internal func executeMCPTool(name: String, arguments: String) async -> String {
+        // For MCP tools, we need to pass the full arguments JSON, not just a single text parameter
+        // The MCP server will parse the JSON and extract the appropriate parameters
         
-        if let argumentsData = arguments.data(using: .utf8),
-           let json = try? JSONSerialization.jsonObject(with: argumentsData) as? [String: Any] {
-            
-            // Handle different parameter types intelligently
-            if let projectNumber = json["projectNumber"] as? Int {
-                toolText = String(projectNumber)
-            } else if let filePath = json["filePath"] as? String {
-                toolText = filePath
-            } else if let directoryPath = json["directoryPath"] as? String {
-                toolText = directoryPath
-            } else if let action = json["action"] as? String {
-                toolText = action
-            } else if let text = json["text"] as? String {
-                toolText = text
-            } else if let startLine = json["startLine"] as? Int, let endLine = json["endLine"] as? Int {
-                // Handle line ranges for snippet tools
-                toolText = "\(startLine)-\(endLine)"
-            } else {
-                // If multiple parameters, combine them meaningfully
-                let values = json.values.compactMap { value -> String? in
-                    if let stringVal = value as? String { return stringVal }
-                    if let intVal = value as? Int { return String(intVal) }
-                    if let boolVal = value as? Bool { return String(boolVal) }
-                    return nil
-                }
-                toolText = values.joined(separator: " ")
-            }
-        } else {
-            // Fallback: use arguments as-is
-            toolText = arguments
-        }
-        
-        // Execute via callback
-        if let result = await mcpToolExecutor?(name, toolText) {
+        // Execute via callback with full JSON arguments
+        if let result = await mcpToolExecutor?(name, arguments) {
             return result
         } else {
             return "Error: MCP tool executor not available"
@@ -415,7 +383,7 @@ Be helpful, accurate, and concise in your responses.
     
     // MARK: - MCP Tool Conversion
     
-    private func convertMCPToolsToAIFunctions(_ mcpTools: [MCPTool]) -> [AITool]? {
+    internal func convertMCPToolsToAIFunctions(_ mcpTools: [MCPTool]) -> [AITool]? {
         guard !mcpTools.isEmpty else { return nil }
         
         return mcpTools.map { mcpTool in
@@ -432,7 +400,7 @@ Be helpful, accurate, and concise in your responses.
         }
     }
     
-    private func createParametersFromMCPTool(_ mcpTool: MCPTool) -> AIFunctionParameters? {
+    internal func createParametersFromMCPTool(_ mcpTool: MCPTool) -> AIFunctionParameters? {
         // Return the schema directly as-is if it exists
         // The schema is already in the correct format from the MCP server
         if let inputSchema = mcpTool.inputSchema {
