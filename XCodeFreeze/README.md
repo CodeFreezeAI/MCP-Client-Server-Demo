@@ -111,3 +111,9 @@ The following improvements were made to correctly use the MCP Client SDK:
 - macOS 12.0 or later
 - Swift 5.5 or later
 - MCP Swift SDK package 
+
+---
+
+**AgentiLoop:** [agentiloop.ai](https://agentiloop.ai/)
+
+Copyright © 2026 AgentiLoop.ai, a Logos InkPen LLC company. All rights reserved.
