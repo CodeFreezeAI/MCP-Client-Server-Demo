@@ -1,5 +1,8 @@
 # MCP Client-Server Demo — XCodeFreeze
 
+🤖 **Built by the makers of [Agent!](https://github.com/AgentiLoop/Agent)**, an autonomous macOS agent.
+
+
 **XCodeFreeze** is a macOS SwiftUI chat app that works as a **Model Context Protocol (MCP) client** and an **AI front-end** at the same time. It starts an MCP server (by default the [xcf](https://xcf.ai) Xcode MCP server) over stdio, finds the server's tools, and lets a local LLM call those tools during a chat. The LLM suggests a tool call, the client runs it, and the result goes back to the model.
 
 Built on the official [MCP Swift SDK](https://github.com/modelcontextprotocol/swift-sdk) (`0.8.2`, up to next major).
